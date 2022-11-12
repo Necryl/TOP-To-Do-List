@@ -1,0 +1,23 @@
+.menu {
+    background-color: rgb(33, 33, 43);
+
+    height: 100%;
+    width: 250px;
+
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+}
+
+.menu .title {
+    text-align: center;
+}
+
+.menu ul {
+    display: grid;
+    justify-items: center;
+}
+
+.toggleTheme {
+    justify-self: center;
+}
