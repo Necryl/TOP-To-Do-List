@@ -17,6 +17,7 @@ module.exports = {
         port: 8080,
         open: true,
         hot: true,
+        watchFiles: [path.resolve(__dirname, "src/index.html")],
     },
     module: {
         rules: [
@@ -33,7 +34,6 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, 'src/index.html'),
-            title: "To-Do List: A TOP Project",
             filename: "index.html",
             inject: 'head',
             scriptLoading: 'defer',
