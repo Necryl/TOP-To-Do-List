@@ -1,0 +1,29 @@
+html, body {
+    margin: 0%;
+    padding: 0%;
+    height: 100vh;
+    width: 100vw;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 250px 1fr 1fr;
+}
+
+body * {
+    height: 100%;
+}
+
+.menu {
+    background-color: rgb(33, 33, 43);
+    color: white;
+}
+
+.listView {
+    background-color: rgb(39, 55, 70);
+    color: white;
+}
+
+.contentView {
+    background-color: rgb(24, 85, 136);
+}

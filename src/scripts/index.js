@@ -1,1 +1,1 @@
-console.log("Hello");
+import mainStyles from "./../styles/main.css"
