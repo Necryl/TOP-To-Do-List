@@ -8,9 +8,42 @@
 </head>
 <body>
     <div class="menu-container">
-        <div class="menu">Menu</div>
+        <div class="menu">
+            <h1 class="title">To-Do List</h1>
+            <ul class="tasks">
+                <li class="allTasks">All Tasks</li>
+            </ul>
+            <span class="seperator"></span>
+            <ul class="notes">
+                <li class="allNotes">All Notes</li>
+            </ul>
+            <span class="seperator"></span>
+            <label class="toggleTheme">Theme <input type="checkbox"></label>
+        </div>
     </div>
-    <div class="listView">List View</div>
-    <div class="contentView">Content</div>
+    <div class="listView">
+        <h1 class="title">To-Do List</h1>
+        <h2 class="listName">List Name</h2>
+        <ul class="listItems"></ul>
+        <h3 class="completedTitle">Completed</h3>
+        <span class="seperator"></span>
+        <ul class="completedItems"></ul>
+    </div>
+    <div class="contentView">
+        <input type="text" class="itemTitle">
+        <span class="seperator"></span>
+        <textarea class="description" cols="30" rows="10"></textarea>
+        <ul class="checkList"></ul>
+        <div class="options">
+            <label for="priority">Priority: </label>
+            <select id="priority">
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+                <option value="uegent">Urgent</option>
+            </select>
+            <input type="date">
+        </div>
+    </div>
 </body>
 </html>
