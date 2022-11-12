@@ -32,16 +32,18 @@
     <div class="contentView">
         <input type="text" class="itemTitle">
         <span class="seperator"></span>
-        <textarea class="description" cols="30" rows="10"></textarea>
+        <textarea class="description" style="resize: none;"></textarea>
         <ul class="checkList"></ul>
         <div class="options">
-            <label for="priority">Priority: </label>
-            <select id="priority">
-                <option value="low">Low</option>
-                <option value="normal" selected>Normal</option>
-                <option value="high">High</option>
-                <option value="uegent">Urgent</option>
-            </select>
+            <label for="priority">
+                Priority:                
+                <select id="priority">
+                    <option value="low">Low</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="high">High</option>
+                    <option value="uegent">Urgent</option>
+                </select>
+            </label>
             <input type="date">
         </div>
     </div>

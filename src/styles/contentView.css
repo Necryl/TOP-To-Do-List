@@ -1,3 +1,39 @@
 .contentView {
     background-color: rgb(24, 85, 136);
+    
+    --insideCol: rgb(50, 66, 80);
+    
+    padding: 4px 10px;
+
+    display: grid;
+    grid-template-rows: auto auto 1fr 1fr auto;
+    gap: 10px;
+}
+
+.contentView .itemTitle, .contentView textarea {
+    border-radius: 5px;
+
+    padding: 6px;
+
+    font-size: 1rem;
+
+    border: 2px solid rgb(80, 98, 104);
+
+    background-color: var(--insideCol);
+}
+
+.contentView .options {
+    display: grid;
+    grid-template-columns: 1fr auto;
+}
+
+.contentView .options * {
+    font-size: 1rem;
+}
+
+.contentView .options input, .contentView .options select {
+    background-color: var(--insideCol);
+    border-radius: 3px;
+    border: none;
+    padding: 3px;
 }
