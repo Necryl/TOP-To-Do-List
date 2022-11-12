@@ -5,6 +5,12 @@ html, body {
     width: 100vw;
 }
 
+:root * {
+    box-sizing: border-box;
+    margin: 0%;
+    padding: 0%;
+}
+
 body {
     display: grid;
     grid-template-columns: auto 1fr 1fr;
@@ -15,17 +21,10 @@ body * {
     color: white;
 }
 
-ul {
-    margin: 0%;
-    padding: 0%;
-}
-
 span.seperator {
     display: block;
-    margin: 0%;
     margin-left: auto;
     margin-right: auto;
-    padding: 0%;
     height: 1px;
     width: 80%;
     justify-self: center;

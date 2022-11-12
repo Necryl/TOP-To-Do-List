@@ -1,3 +1,7 @@
 .listView {
     background-color: rgb(39, 55, 70);
+    display: grid;
+    align-content: start;
+
+    padding: 10px;
 }

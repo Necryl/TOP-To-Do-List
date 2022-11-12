@@ -1,23 +1,14 @@
 .menu {
     background-color: rgb(33, 33, 43);
 
+    box-sizing: border-box;
+
     height: 100%;
     width: 250px;
+
+    padding: 10px;
 
     display: grid;
     align-content: start;
     gap: 1rem;
-}
-
-.menu .title {
-    text-align: center;
-}
-
-.menu ul {
-    display: grid;
-    justify-items: center;
-}
-
-.toggleTheme {
-    justify-self: center;
 }
