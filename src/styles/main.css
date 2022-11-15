@@ -30,3 +30,15 @@ span.seperator {
     justify-self: center;
     background-color: rgba(255, 255, 255, 0.384);
 }
+
+.title-wrapper {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1ch;
+}
+
+.title-wrapper button {
+    color: black;
+    height: 100%;
+    aspect-ratio: 1/1;
+}
