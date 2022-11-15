@@ -5,15 +5,20 @@ html, body {
     width: 100vw;
 }
 
+:root {
+    --colMinusOne: 2;
+}
+
 :root * {
     box-sizing: border-box;
     margin: 0%;
     padding: 0%;
+
 }
 
 body {
     display: grid;
-    grid-template-columns: auto 1fr 1fr;
+    grid-template-columns: auto repeat(var(--colMinusOne), 1fr);
 }
 
 body * {
