@@ -11,8 +11,22 @@
     z-index: 0;
 }
 
+.listView .title-wrapper {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+}
+
 .listView.triple #open-menu {
     display: none;
+}
+
+.listView #open-menu {
+    max-height: 2.5rem;
+}
+
+.listView .title {
+    font-size: 2.5rem;
 }
 
 .listView.triple .title {
