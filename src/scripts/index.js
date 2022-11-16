@@ -26,62 +26,47 @@ let displayState; // possible states: triple, double, single
 const elementsWhoseClassesReflectDisplayState = [bodyElement, menuElement, listViewElement, contentViewElement];
 const possibleDisplayStates = ['triple', 'double', 'single'];
 
-// events
-window.onresize = updateDisplayState;
-
-openMenuBtnElement.addEventListener('click', (event) => {
-    if (displayState != 'triple') {
-        [menuContainerElement, menuElement].forEach(element => {
-            element.classList.add('visible');
-        })
-    }
-})
-closeMenuBtnElement.addEventListener('click', (event) => {
-    hideMenu();
-})
-menuElement.addEventListener('click', event => {
-    event.stopPropagation();
-})
-menuContainerElement.addEventListener('click', (event) => {
-    hideMenu();
-})
-
-
-// functions
-function updateDisplayState () {
-    let height = rootElement.clientHeight;
-    let width = rootElement.clientWidth;
-    let ratio = width/height;
-    let menuWidth = menuElement.clientWidth;
-
-    let result;
-
-    if (ratio < 0.72) {
-        result = 'single';
-    } else if (ratio < 1.178 || width/menuWidth < 3) {
-        result = 'double';
-    } else {
-        result = 'triple';
+// modules
+const UI = (() => {
+    function updateDisplayState () {
+        let height = rootElement.clientHeight;
+        let width = rootElement.clientWidth;
+        let ratio = width/height;
+        let menuWidth = menuElement.clientWidth;
+    
+        let result;
+    
+        if (ratio < 0.72) {
+            result = 'single';
+        } else if (ratio < 1.178 || width/menuWidth < 3) {
+            result = 'double';
+        } else {
+            result = 'triple';
+        }
+        
+        displayState = result;
+        updateDisplayMode();
     }
     
-    displayState = result;
-    updateUiMode();
-}
+    function updateDisplayMode () {
+        addClasses(displayState, elementsWhoseClassesReflectDisplayState);
+        possibleDisplayStates.forEach(className => {
+            if (displayState !== className) {
+                removeClasses(className, elementsWhoseClassesReflectDisplayState);
+            }
+        })
+    }
+    
+    function hideMenu () {
+        [menuContainerElement, menuElement].forEach(element => {
+            element.classList.remove('visible');
+        })
+    }
 
-function updateUiMode () {
-    addClasses(displayState, elementsWhoseClassesReflectDisplayState);
-    possibleDisplayStates.forEach(className => {
-        if (displayState !== className) {
-            removeClasses(className, elementsWhoseClassesReflectDisplayState);
-        }
-    })
-}
-
-function hideMenu () {
-    [menuContainerElement, menuElement].forEach(element => {
-        element.classList.remove('visible');
-    })
-}
+    return {
+        updateDisplayState, hideMenu,
+    }
+})()
 
 // tool functions
 function addClasses (className, elements=[]) {
@@ -92,6 +77,25 @@ function removeClasses (className, elements=[]) {
     elements.forEach(elem => {elem.classList.remove(className);});
 }
 
-// on start
-updateDisplayState();
+// events
+window.onresize = () => {UI.updateDisplayState();};
 
+openMenuBtnElement.addEventListener('click', (event) => {
+    if (displayState != 'triple') {
+        [menuContainerElement, menuElement].forEach(element => {
+            element.classList.add('visible');
+        })
+    }
+})
+closeMenuBtnElement.addEventListener('click', (event) => {
+    UI.hideMenu();
+})
+menuElement.addEventListener('click', (event) => {
+    event.stopPropagation();
+})
+menuContainerElement.addEventListener('click', (event) => {
+    UI.hideMenu();
+})
+
+// on start
+UI.updateDisplayState();
