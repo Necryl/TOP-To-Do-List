@@ -6,6 +6,7 @@ import contentViewStyles from "./../styles/contentView.css"
 
 // elements
 const rootElement = document.querySelector(':root');
+const bodyElement = document.querySelector('body');
 const closeMenuBtnElement = document.querySelector('#close-menu');
 const openMenuBtnElement = document.querySelector('#open-menu');
 const returnBtnElement = document.querySelector('#return');
@@ -17,10 +18,12 @@ const menuTitleElement = document.querySelector('.menu .title');
 const listViewTitleElement = document.querySelector('.listView .title');
 
 
-
 // state variables
 let displayState; // possible states: triple, double, single
 
+// hardcoded data
+const elementsWhoseClassesReflectDisplayState = [bodyElement, menuElement, listViewElement, contentViewElement];
+const possibleDisplayStates = ['triple', 'double', 'single'];
 
 // events
 window.onresize = updateDisplayState;
@@ -48,43 +51,21 @@ function updateDisplayState () {
 }
 
 function updateUiMode () {
-    if (displayState === 'triple') {
-        navBtnElements.forEach((button) => {button.style.display = 'none'});
-        
-        menuElement.style.display = 'grid';
-        listViewElement.style.display = 'grid';
-        contentViewElement.style.display = 'grid';
-        
-        rootElement.style.setProperty('--colMinusOne', 2);
+    addClasses(displayState, elementsWhoseClassesReflectDisplayState);
+    possibleDisplayStates.forEach(className => {
+        if (displayState !== className) {
+            removeClasses(className, elementsWhoseClassesReflectDisplayState);
+        }
+    })
+}
 
-        menuTitleElement.style.display = 'initial';
-        listViewTitleElement.style.display = 'none';
-    } else if (displayState === 'double') {
-        closeMenuBtnElement.style.display = 'initial';
-        openMenuBtnElement.style.display = 'initial';
-        returnBtnElement.style.display = 'none';
+// tool functions
+function addClasses (className, elements=[]) {
+    elements.forEach(elem => {elem.classList.add(className);});
+}
 
-        menuElement.style.display = 'none';
-        listViewElement.style.display = 'grid';
-        contentViewElement.style.display = 'grid';
-
-        rootElement.style.setProperty('--colMinusOne', 2);
-        
-        menuTitleElement.style.display = 'none';
-        listViewTitleElement.style.display = 'initial';
-    } else {
-        navBtnElements.forEach(button => {
-            button.style.display = 'initial';
-        })
-        menuElement.style.display = 'none';
-        listViewElement.style.display = 'grid';
-        contentViewElement.style.display = 'none';
-
-        rootElement.style.setProperty('--colMinusOne', 1);
-
-        menuTitleElement.style.display = 'none';
-        listViewTitleElement.style.display = 'initial';
-    }
+function removeClasses (className, elements=[]) {
+    elements.forEach(elem => {elem.classList.remove(className);});
 }
 
 // on start

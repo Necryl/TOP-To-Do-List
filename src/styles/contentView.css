@@ -42,3 +42,15 @@
     border: none;
     padding: 3px;
 }
+
+.contentView #return {
+    display: none;
+}
+
+.contentView.single #return {
+    display: initial;
+}
+
+.contentView.single {
+    display: none;
+}

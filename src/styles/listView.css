@@ -5,3 +5,11 @@
 
     padding: 10px;
 }
+
+.listView.triple #open-menu {
+    display: none;
+}
+
+.listView.triple .title {
+    display: none;
+}

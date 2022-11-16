@@ -8,7 +8,23 @@
 
     padding: 10px;
 
-    display: grid;
+    display: none;
     align-content: start;
     gap: 1rem;
+}
+
+.menu.triple {
+    display: grid;
+}
+
+.menu.triple #close-menu {
+    display: none;
+}
+
+.menu .title {
+    display: none;
+}
+
+.menu.triple .title {
+    display: initial;
 }
