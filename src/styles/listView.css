@@ -16,3 +16,9 @@
 .listView.triple .title {
     display: none;
 }
+
+#listName {
+    background-color: transparent;
+    border: none;
+    font-size: 1.75rem;
+}
