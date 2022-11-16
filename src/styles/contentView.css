@@ -13,6 +13,7 @@
 .contentView .title-wrapper {
     display: grid;
     grid-template-columns: 1fr;
+    overflow: visible;
 }
 
 .contentView .itemTitle, .contentView textarea {
