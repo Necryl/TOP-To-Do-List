@@ -39,13 +39,26 @@
         </div>
         <input type="text" id="listName" value="List Name">
         <ul class="listItems">
-            <li>Sample task</li>
-            <li>Sample note</li>
+            <li>
+                <input type="checkbox">
+                <input type="text" value="Sample task">
+                <select id="priority">
+                    <option value="low">Low</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="high">High</option>
+                    <option value="uegent">Urgent</option>
+                </select>
+                <input type="date">
+            </li>
+            <li><input type="text" value="Sample note"></li>
         </ul>
         <h3 class="completedTitle">Completed</h3>
         <span class="seperator"></span>
         <ul class="completedItems">
-            <li>sample completed task</li>
+            <li>
+                <input type="checkbox">
+                <input type="text" value="Sample completed task">
+            </li>
         </ul>
     </div>
     <div class="contentView">
