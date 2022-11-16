@@ -172,6 +172,7 @@
 
 .listView ul li input[type='text'] {
     padding: 5px;
+    min-width: 10ch;
 }
 
 .listView ul li select {
@@ -180,6 +181,10 @@
 
 .listView ul li select:active {
     background-color: var(--bgCol);
+}
+
+.listView ul li input[type='date'] {
+    min-width: 13ch;
 }
 
 #completedTitle {
