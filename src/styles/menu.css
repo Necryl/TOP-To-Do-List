@@ -44,6 +44,41 @@ body:not(body.triple) .menu-container.visible {
     position: relative;
 }
 
+.menu .title-wrapper {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-columns: 1fr;
+
+    margin-bottom: 15px;
+
+    overflow: visible;
+}
+
+.menu #close-menu {
+
+    justify-self: end;
+    
+    overflow: visible;
+    display: grid;
+    place-content: center;
+
+    --size: 15px;
+    height: var(--size);
+    width: var(--size);
+
+    background-color: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.521);
+    font-size: 1.7rem;
+
+    transition: 100ms;
+}
+
+.menu #close-menu:hover {
+    scale: 120%;
+    color: white;
+}
+
 .menu.triple #close-menu {
     display: none;
 }
@@ -63,7 +98,7 @@ body:not(body.triple) .menu-container.visible {
 }
 
 
-:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)), #toggleTheme {
+:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)) {
     font-size: 1rem;
     background-color: transparent;
     border: none;
