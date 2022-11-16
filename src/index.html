@@ -39,7 +39,7 @@
         </div>
         <input type="text" id="listName" value="List Name">
         <ul class="listItems">
-            <li>
+            <li class="task">
                 <input type="checkbox">
                 <input type="text" value="Sample task">
                 <select id="priority">
@@ -50,12 +50,13 @@
                 </select>
                 <input type="date">
             </li>
-            <li><input type="text" value="Sample note"></li>
+            <li class="note">
+                <input type="text" value="Sample note">
+            </li>
         </ul>
-        <h3 class="completedTitle">Completed</h3>
-        <span class="seperator"></span>
+        <button id="completedTitle">Completed</button>
         <ul class="completedItems">
-            <li>
+            <li class="task">
                 <input type="checkbox">
                 <input type="text" value="Sample completed task">
             </li>

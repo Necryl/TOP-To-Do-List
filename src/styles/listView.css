@@ -1,7 +1,9 @@
 .listView {
-    background-color: rgb(39, 55, 70);
+    --bgCol: rgb(39, 55, 70);
+    background-color: var(--bgCol);
     display: grid;
     align-content: start;
+    gap: 15px;
 
     padding: 10px;
 
@@ -21,4 +23,133 @@
     background-color: transparent;
     border: none;
     font-size: 1.75rem;
+    border-bottom: 1px solid transparent;
+}
+#listName:focus {
+    outline: none;
+    border-bottom-color: rgba(255, 255, 255, 0.781);
+    border-radius: 0%;
+}
+
+.listView ul {
+    display: grid;
+    gap: 7px;
+    margin-bottom: 10px;
+}
+
+.listView ul li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 3px 10px;
+    transition: 250ms;
+    background-color: rgba(129, 205, 255, 0.123);
+}
+
+.listView ul li:hover {
+    border-color: rgba(255, 255, 255, 0.308);
+}
+.listView ul li:focus-within {
+    border-bottom-color: white;
+}
+
+.listView ul li * {
+    background-color: transparent;
+    border: none;
+    font-size: 1rem;
+}
+.listView ul li *:focus {
+    outline: none;
+}
+
+.listView ul li input[type='checkbox'] {
+    -webkit-appearance: none;
+    appearance: none;
+    --size: 18px;
+    width: var(--size);
+    height: var(--size);
+    align-self: center;
+
+    --col: rgba(255, 255, 255, 0.233);
+    border: 2px solid var(--col);
+    border-radius: 5px;
+
+    position: relative;
+    overflow: visible;
+
+    transition: 200ms;
+}
+.listView ul li input[type='checkbox']:hover {
+    --col: rgba(255, 255, 255, 0.479);
+}
+
+.listView ul li input[type='checkbox']::before {
+    position: absolute;
+    content: '';
+    color: rgb(143, 168, 192);
+    translate: -3px -12px;
+}
+
+.listView .completedItems li input[type='checkbox']::before {
+    color: rgb(134, 139, 141);
+}
+
+.listView ul li input[type='checkbox']:checked::before {
+    content: '\2713';
+    font-size: 30px;
+}
+
+.listView ul li input[type='text'] {
+    padding: 5px;
+}
+
+.listView ul li select {
+    border-radius: 3px;
+}
+
+.listView ul li select:focus {
+    background-color: var(--bgCol);
+}
+
+#completedTitle {
+    padding: 7px 0px;
+    border-radius: 6px;
+    background-color: transparent;
+    text-align: start;
+    font-size: 1.2rem;
+    --col: white;
+    color: var(--col);
+    border: none;
+    transition: 300ms;
+}
+#completedTitle::after {
+    display: block;
+    margin-top: 3px;
+    content: '';
+    background-color: rgba(255, 255, 255, 0.795);
+    height: 1px;
+    
+    transition: 500ms;
+    width: 0%;
+}
+#completedTitle:hover {
+    --col: rgb(118, 179, 248);
+}
+#completedTitle:hover::after {
+    width: 100%;
+    background-color: var(--col);
+}
+
+.listView .completedItems li {
+    background-color: rgba(31, 36, 44, 0.425);
+    color: rgba(255, 255, 255, 0.637);
+}
+
+.listView .completedItems li input[type='text'] {
+    text-decoration: line-through;
+    color: inherit;
 }
