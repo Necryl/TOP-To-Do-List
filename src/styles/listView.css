@@ -19,6 +19,32 @@
     display: none;
 }
 
+.listView .listNameWrapper {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+}
+
+.listView .listNameWrapper #newBtn {
+    background-color: rgb(49, 71, 100);
+    color: rgba(255, 255, 255, 0.788);
+    border: 1px solid rgba(114, 151, 207, 0.281);
+    border-radius: 5px;
+    font-size: 0.9rem;
+    padding: 6px 15px;
+    align-self: center;
+
+    transition: 100ms;
+}
+
+.listView .listNameWrapper #newBtn:hover {
+    border-color: rgba(255, 255, 255, 0.473);
+    background-color: rgba(95, 149, 170, 0.527);
+}
+.listView .listNameWrapper #newBtn:active {
+    background-color: white;
+}
+
 #listName {
     background-color: transparent;
     border: none;
