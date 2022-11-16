@@ -11,6 +11,7 @@ const closeMenuBtnElement = document.querySelector('#close-menu');
 const openMenuBtnElement = document.querySelector('#open-menu');
 const returnBtnElement = document.querySelector('#return');
 const navBtnElements = [closeMenuBtnElement, openMenuBtnElement, returnBtnElement];
+const menuContainerElement = document.querySelector('.menu-container');
 const menuElement = document.querySelector('.menu');
 const listViewElement = document.querySelector('.listView');
 const contentViewElement = document.querySelector('.contentView');
@@ -27,6 +28,23 @@ const possibleDisplayStates = ['triple', 'double', 'single'];
 
 // events
 window.onresize = updateDisplayState;
+
+openMenuBtnElement.addEventListener('click', (event) => {
+    if (displayState != 'triple') {
+        [menuContainerElement, menuElement].forEach(element => {
+            element.classList.add('visible');
+        })
+    }
+})
+closeMenuBtnElement.addEventListener('click', (event) => {
+    hideMenu();
+})
+menuElement.addEventListener('click', event => {
+    event.stopPropagation();
+})
+menuContainerElement.addEventListener('click', (event) => {
+    hideMenu();
+})
 
 
 // functions
@@ -56,6 +74,12 @@ function updateUiMode () {
         if (displayState !== className) {
             removeClasses(className, elementsWhoseClassesReflectDisplayState);
         }
+    })
+}
+
+function hideMenu () {
+    [menuContainerElement, menuElement].forEach(element => {
+        element.classList.remove('visible');
     })
 }
 

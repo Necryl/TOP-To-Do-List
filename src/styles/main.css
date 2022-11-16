@@ -14,12 +14,17 @@ html, body {
 
 body {
     --colMinusOne: 2;
+    --firstCol: 1;
     display: grid;
-    grid-template-columns: auto repeat(var(--colMinusOne), 1fr);
+    grid-template-columns: auto 1fr 1fr;
+}
+
+body.double {
+    grid-template-columns: 1fr 1fr;
 }
 
 body.single {
-    --colMinusOne: 1;
+    grid-template-columns: 1fr;
 }
 
 body * {

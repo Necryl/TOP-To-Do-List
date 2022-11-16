@@ -4,6 +4,9 @@
     align-content: start;
 
     padding: 10px;
+
+    position: relative;
+    z-index: 0;
 }
 
 .listView.triple #open-menu {

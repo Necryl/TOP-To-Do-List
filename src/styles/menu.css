@@ -1,20 +1,47 @@
+.menu-container {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+}
+body:not(body.triple) .menu-container {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+}
+body:not(body.triple) .menu-container.visible {
+    background-color: rgba(0, 0, 0, 0.185);
+    pointer-events: initial;    
+}
 .menu {
     background-color: rgb(33, 33, 43);
 
-    box-sizing: border-box;
-
     height: 100%;
-    width: 250px;
+    width: min(250px, 100vw);
 
     padding: 10px;
 
-    display: none;
+    display: grid;
     align-content: start;
     gap: 1rem;
+
+    position: relative;
+}
+
+.menu:not(.menu.triple) {
+    position: absolute;
+    top: 0%;
+    right: 100%;
+    transition: 300ms;
+}
+
+.menu.visible {
+    translate: 100%;
 }
 
 .menu.triple {
     display: grid;
+    position: relative;
 }
 
 .menu.triple #close-menu {
