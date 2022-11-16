@@ -3,6 +3,7 @@ import mainStyles from "./../styles/main.css"
 import menuStyles from "./../styles/menu.css"
 import listViewtyles from "./../styles/listView.css"
 import contentViewStyles from "./../styles/contentView.css"
+import loadingStyles from "./../styles/loading.css"
 
 // elements
 const rootElement = document.querySelector(':root');
@@ -15,6 +16,7 @@ const menuElement = document.querySelector('.menu');
 const listViewElement = document.querySelector('.listView');
 const contentViewElement = document.querySelector('.contentView');
 const listViewOptionsElement = document.querySelector('.listView .options');
+const loadingContainerElement = document.querySelector('.loading-container');
 
 
 // state variables
