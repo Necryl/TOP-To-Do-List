@@ -13,13 +13,21 @@
                 <button id="close-menu">|||</button>
                 <h1 class="title">To-Do List</h1>
             </div>
-            <ul class="tasks">
-                <li class="allTasks">All Tasks</li>
-            </ul>
+            <div class="tasks-wrapper">
+                <button id="allTasks">All Tasks</button>
+                <ul id="tasks">
+                    <li>Sample</li>
+                </ul>
+                <button id="newBtn">NEW</button>
+            </div>
             <span class="seperator"></span>
-            <ul class="notes">
-                <li class="allNotes">All Notes</li>
-            </ul>
+            <notes class="notes-wrapper">
+                <button id="allNotes">All Notes</button>
+                <ul id="notes">
+                    <li>Sample</li>
+                </ul>
+                <button id="newBtn">NEW</button>
+            </notes>
             <span class="seperator"></span>
             <label class="toggleTheme">Theme <input type="checkbox"></label>
         </div>
@@ -30,10 +38,14 @@
             <h1 class="title">To-Do List</h1>
         </div>
         <h2 class="listName">List Name</h2>
-        <ul class="listItems"></ul>
+        <ul class="listItems">
+            <li>Sample task</li>
+        </ul>
         <h3 class="completedTitle">Completed</h3>
         <span class="seperator"></span>
-        <ul class="completedItems"></ul>
+        <ul class="completedItems">
+            <li>sample completed task</li>
+        </ul>
     </div>
     <div class="contentView">
         <div class="title-wrapper">
