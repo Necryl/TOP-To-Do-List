@@ -36,7 +36,6 @@ const UI = (() => {
         let result;
     
         if (width/menuWidth < 3) {
-            console.log('double it is');
             result = 'double';
         } else {
             result = 'triple';
@@ -55,18 +54,21 @@ const UI = (() => {
             }
         })
 
-        let overflow = false;
-        [...getListViewItems(), listViewElement, listViewOptionsElement, contentViewElement].forEach(element => {
-            if (checkForScrollBars(element, 'horizontal') === true) {
-                overflow = true;
+        setTimeout(()=>{
+            let overflow = false;
+            [...getListViewItems(), listViewElement, listViewOptionsElement, contentViewElement].forEach(element => {
+                if (checkForScrollBars(element, 'horizontal') === true) {
+                    console.dir(element);
+                    overflow = true;
+                }
+            });
+            console.log('overflow = ', overflow);
+            if (overflow===true && displayState !== 'single') {
+                console.log('there is overflow', 'current displayState: '+displayState);
+                displayState = displayState === 'triple' ? 'double':'single';
+                updateDisplayMode();
             }
-        });
-        console.log('overflow = ', overflow);
-        if (overflow===true && displayState !== 'single') {
-            console.log('there is overflow', 'current displayState: '+displayState);
-            displayState = displayState === 'triple' ? 'double':'single';
-            setTimeout(()=>{updateDisplayMode();}, 10)
-        }
+        }, 300);
     }
     
     function hideMenu () {

@@ -17,6 +17,7 @@ body {
     --firstCol: 1;
     display: grid;
     grid-template-columns: auto 1fr 1fr;
+    overflow: hidden;
 }
 
 body.double {
@@ -28,8 +29,11 @@ body.single {
 }
 
 body * {
-    overflow: auto;
     color: white;
+}
+
+body > * {
+    overflow: auto;
 }
 
 span.seperator {
