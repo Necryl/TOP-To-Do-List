@@ -164,7 +164,7 @@
     border-radius: 3px;
 }
 
-.listView ul li select:focus {
+.listView ul li select:active {
     background-color: var(--bgCol);
 }
 
