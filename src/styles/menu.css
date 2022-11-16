@@ -55,3 +55,37 @@ body:not(body.triple) .menu-container.visible {
 .menu.triple .title {
     display: initial;
 }
+
+.menu .tasks-wrapper, .menu .notes-wrapper, .menu #tasks, .menu #notes {
+    
+    display: grid;
+    overflow: visible;
+}
+
+
+:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)), #toggleTheme {
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 3px;
+    padding: 7px;
+    text-align: start;
+    transition: 300ms;
+    outline: 1px solid transparent;
+}
+
+:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)):hover {
+    outline-color: white;
+}
+:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)).selected {
+    outline: 2px solid rgba(0, 255, 255, 0.438);
+}
+.menu #newBtn {
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.082);
+    border: 1px solid rgba(255, 255, 255, 0.185);
+    font-size: 0.85em;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 3px;
+}
