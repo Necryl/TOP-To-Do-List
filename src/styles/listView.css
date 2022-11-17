@@ -9,7 +9,6 @@
 
     position: relative;
     z-index: 7;
-    overflow: visible;
 }
 
 .listView .title-wrapper {
@@ -65,6 +64,8 @@
     border: none;
     font-size: 1.75rem;
     border-bottom: 1px solid transparent;
+    width: 100%;
+    min-width: min-content;
 }
 #listName:focus {
     outline: none;
@@ -76,6 +77,7 @@
     display: grid;
     grid-auto-flow: column;
     justify-content: space-between;
+    gap: 1ch;
 }
 
 .listView .options, .listView .options * {
@@ -86,7 +88,11 @@
     display: grid;
     grid-auto-flow: column;
     align-items: center;
-    gap: 1ch;
+    gap: 0.5ch;
+}
+
+.listView .sort span {
+    min-width: max-content;
 }
 
 .listView :is(.sort, .show) button {
@@ -172,8 +178,9 @@
 }
 
 .listView ul li input[type='text'] {
-    padding: 5px;
-    min-width: 10ch;
+    padding: 5px 0px;
+    width: 100%;
+    min-width: 5ch;
 }
 
 .listView ul li select {
@@ -193,6 +200,8 @@
 
     display: grid;
     align-items: center;
+
+    overflow: visible;
 }
 
 #completedTitle {
