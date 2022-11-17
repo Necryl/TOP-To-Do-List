@@ -151,9 +151,10 @@ const UI = (() => {
         };
     }
 
-    function loadToolTips () {
+    async function loadToolTips () {
+        loadingProcessStatus.loadingTooltips = true;
         let tooltips = getChildElements(toolTipsElement);
-        tooltips.forEach(element => {
+        await tooltips.forEach(element => {
             let childElement = getChildElements(element)[0];
             let alignment = element.getAttribute('place');
             childElement.classList.add(alignment);
@@ -174,7 +175,6 @@ const UI = (() => {
             }
             
             let targetElements = [...document.querySelectorAll(element.getAttribute('for'))];
-            console.log('target: ', targetElements);
 
             targetElements.forEach(targetElem => {
                 targetElem.addEventListener('mouseover', (event) => {
@@ -182,7 +182,6 @@ const UI = (() => {
                     let spatialData = getOffset(targetElem);
                     let coordX = getCoordX(spatialData);
                     let coordY = spatialData.y;
-                    console.log(coordX, coordY);
                     element.style = `--positionX: ${coordX}px; --positionY: ${coordY}px;`;
                 });
                 targetElem.addEventListener('mouseout', (event) => {
@@ -190,12 +189,14 @@ const UI = (() => {
                 });
             })
         });
+        loadingProcessStatus.loadingTooltips = false;
+        finishLoading();
     }
 
     function initiate () {
         startLoading();
-        loadToolTips();
         updateDisplayState();
+        loadToolTips();
     }
 
     return {
