@@ -30,7 +30,8 @@
 
 .contentView .options {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-auto-flow: column;
+    justify-content: space-between;
 }
 
 .contentView .options * {
@@ -42,6 +43,27 @@
     border-radius: 3px;
     border: none;
     padding: 3px;
+}
+
+.contentView #delete {
+    background-color: rgb(182, 17, 44);
+    border: 2px solid rgb(201, 140, 61);
+    color: rgb(255, 228, 206);
+    border-radius: 4px;
+    padding: 3px 20px;
+    font-size: 1rem;
+
+    transition: 100ms;
+}
+
+.contentView #delete:hover {
+    border-color: rgb(219, 184, 139);
+    background-color: rgb(167, 0, 0);
+    color: white;
+}
+.contentView #delete:active {
+    background-color: black;
+    border-color: white;
 }
 
 .contentView #return {
