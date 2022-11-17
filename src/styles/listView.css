@@ -8,7 +8,7 @@
     padding: 10px;
 
     position: relative;
-    z-index: 7;
+    z-index: 1;
 }
 
 .listView .title-wrapper {

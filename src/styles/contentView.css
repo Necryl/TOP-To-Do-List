@@ -10,7 +10,7 @@
     gap: 10px;
 
     position: relative;
-    z-index: 5;
+    z-index: 0;
 }
 
 .contentView .title-wrapper {

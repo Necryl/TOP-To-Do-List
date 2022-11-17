@@ -4,6 +4,7 @@ import menuStyles from "./../styles/menu.css"
 import listViewtyles from "./../styles/listView.css"
 import contentViewStyles from "./../styles/contentView.css"
 import loadingStyles from "./../styles/loading.css"
+import tooltipStyles from "./../styles/tooltips.css"
 
 // elements
 const rootElement = document.querySelector(':root');
@@ -17,6 +18,7 @@ const listViewElement = document.querySelector('.listView');
 const contentViewElement = document.querySelector('.contentView');
 const listViewOptionsElement = document.querySelector('.listView .options');
 const loadingContainerElement = document.querySelector('.loading-container');
+const toolTipsElement = document.querySelector('.toolTips');
 
 
 // state variables
@@ -29,9 +31,14 @@ const possibleDisplayStates = ['triple', 'double', 'single'];
 
 // modules
 const UI = (() => {
+    let loadingProcessStatus = {
+        updatingDisplay: false,
+        loadingTooltips: false,
+    };
+
     function updateDisplayState () {
-        loadingContainerElement.style.opacity = '100%';
-        loadingContainerElement.style.pointerEvents = 'initial';
+
+        loadingProcessStatus.updatingDisplay = true;
 
         let height = rootElement.clientHeight;
         let width = rootElement.clientWidth;
@@ -63,20 +70,22 @@ const UI = (() => {
             let overflow = false;
             [...getListViewItems(), listViewElement, listViewOptionsElement, contentViewElement].forEach(element => {
                 if (checkForScrollBars(element, 'horizontal') === true) {
-                    console.dir(element);
                     overflow = true;
                 }
             });
-            console.log('overflow = ', overflow);
             if (overflow===true && displayState !== 'single') {
-                console.log('there is overflow', 'current displayState: '+displayState);
                 displayState = displayState === 'triple' ? 'double':'single';
                 updateDisplayMode();
             } else {
-                loadingContainerElement.style.opacity = '0%';
-                loadingContainerElement.style.pointerEvents = 'none';
+                loadingProcessStatus.updatingDisplay = false;
+                finishLoading();
             }
         }, 300);
+    }
+
+    function updateDisplay() {
+        startLoading();
+        updateDisplayState();
     }
     
     function hideMenu () {
@@ -101,13 +110,103 @@ const UI = (() => {
         elements.forEach(elem => {elem.classList.remove(className);});
     }
 
+    function startLoading () {
+        loadingContainerElement.style.opacity = '100%';
+        loadingContainerElement.style.pointerEvents = 'initial';
+    }
+
+    function finishLoading () {
+        let ready = true;
+        Object.values(loadingProcessStatus).forEach(process => {
+            if (process === true) {
+                ready = false;
+            }
+        });
+        if (ready) {
+            loadingContainerElement.style.opacity = '0%';
+            loadingContainerElement.style.pointerEvents = 'none';
+        }
+    }
+
+    function getChildElements (element) {
+        return [...element.childNodes].reduce((final, current) => {
+            if (current.nodeName !== '#text') {
+                final.push(current);
+            }
+            return final;
+        }, []);
+    }
+
+    function getOffset(el) {
+        const rect = el.getBoundingClientRect();
+        return {
+          left: Math.round(rect.left + window.scrollX),
+          right: Math.round(rect.right + window.scrollX),
+          top: Math.round(rect.top + window.scrollY),
+          bottom: Math.round(rect.bottom + window.scrollY),
+          x: Math.round(rect.x + window.scrollX),
+          y: Math.round(rect.y + window.scrollY),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        };
+    }
+
+    function loadToolTips () {
+        let tooltips = getChildElements(toolTipsElement);
+        tooltips.forEach(element => {
+            let childElement = getChildElements(element)[0];
+            let alignment = element.getAttribute('place');
+            childElement.classList.add(alignment);
+            
+            let getCoordX;
+            if (alignment === 'center') {
+                getCoordX = (spatialData) => {
+                    return spatialData.x + (Math.round(spatialData.width/2));
+                }
+            } else if (alignment === 'left') {
+                getCoordX = (spatialData) => {
+                    return spatialData.x;
+                }
+            } else if(alignment === 'right') {
+                getCoordX = (spatialData) => {
+                    return spatialData.x + (Math.round(spatialData.width));
+                }
+            }
+            
+            let targetElements = [...document.querySelectorAll(element.getAttribute('for'))];
+            console.log('target: ', targetElements);
+
+            targetElements.forEach(targetElem => {
+                targetElem.addEventListener('mouseover', (event) => {
+                    element.classList.add('show');
+                    let spatialData = getOffset(targetElem);
+                    let coordX = getCoordX(spatialData);
+                    let coordY = spatialData.y;
+                    console.log(coordX, coordY);
+                    element.style = `--positionX: ${coordX}px; --positionY: ${coordY}px;`;
+                });
+                targetElem.addEventListener('mouseout', (event) => {
+                    element.classList.remove('show');
+                });
+            })
+        });
+    }
+
+    function initiate () {
+        startLoading();
+        loadToolTips();
+        updateDisplayState();
+    }
+
     return {
-        updateDisplayState, hideMenu, checkForScrollBars,
+        updateDisplay, initiate, startLoading, hideMenu,
     }
 })()
 
 // events
-window.onresize = () => {UI.updateDisplayState();};
+window.onresize = () => {
+    UI.updateDisplay();
+};
 
 openMenuBtnElement.addEventListener('click', (event) => {
     if (displayState != 'triple') {
@@ -127,7 +226,7 @@ menuContainerElement.addEventListener('click', (event) => {
 })
 
 // on start
-UI.updateDisplayState();
+UI.initiate();
 
 // for testing
 // console.log('--------Testing--------');

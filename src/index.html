@@ -63,13 +63,24 @@
                 </select>
                 <input type="date">
             </li>
+            <li class="task">
+                <input type="checkbox">
+                <input type="text" value="Sample task 2">
+                <select id="priority">
+                    <option value="low">Low</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="high">High</option>
+                    <option value="uegent">Urgent</option>
+                </select>
+                <input type="date">
+            </li>
             <li class="note">
                 <input type="text" value="Sample note">
             </li>
         </ul>
         <div class="completedTitle-wrapper">
             <button id="completedTitle">Completed</button>
-            <button id="removeCompleted">remove <span class="tooltip">remove all completed tasks</span></button>
+            <button id="removeCompleted">remove</button>
         </div>
         <ul class="completedItems">
             <li class="task">
@@ -86,22 +97,30 @@
         <span class="seperator"></span>
         <textarea class="description" style="resize: none;" placeholder="Description"></textarea>
         <div class="options">
-            <label for="priority">
-                Priority:                
-                <select id="priority">
-                    <option value="low">Low</option>
-                    <option value="normal" selected>Normal</option>
-                    <option value="high">High</option>
-                    <option value="uegent">Urgent</option>
-                </select>
-            </label>
+            <select id="priority">
+                <option value="low">Low</option>
+                <option value="normal" selected>Normal</option>
+                <option value="high">High</option>
+                <option value="uegent">Urgent</option>
+            </select>
             <input type="date">
             <button id="delete">Delete</button>
         </div>
     </div>
+    <div class="toolTips">
+        <div for=".listView #removeCompleted" place="center">
+            <span>remove all completed tasks</span>
+        </div>
+        <div for=".contentView #delete" place="right">
+            <span>delete this task</span>
+        </div>
+        <div for=".listView .listItems .task select, .contentView .options #priority" place="center">
+            <span>Priority Level</span>
+        </div>
+    </div>
     <div class="loading-container">
         <div class="loading">
-            <h1>Loading</h1>
+            <h1>Loading &#8212 Please Wait</h1>
         </div>
     </div>
 </body>

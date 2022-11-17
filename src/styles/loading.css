@@ -28,6 +28,7 @@
 .loading h1 {
     pointer-events: inherit;
     font-size: 55px;
+    text-align: center;
 
     -webkit-user-select: none; /* Safari */
     -ms-user-select: none; /* IE 10 and IE 11 */
