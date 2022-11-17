@@ -23,7 +23,7 @@ const toolTipsElement = document.querySelector('.toolTips');
 
 // state variables
 let displayState; // possible states: triple, double, single
-let timeWindow = false;
+let currentView = listViewElement;
 
 // hardcoded data
 const elementsWhoseClassesReflectDisplayState = [bodyElement, menuElement, listViewElement, contentViewElement];
@@ -40,9 +40,7 @@ const UI = (() => {
 
         loadingProcessStatus.updatingDisplay = true;
 
-        let height = rootElement.clientHeight;
         let width = rootElement.clientWidth;
-        let ratio = width/height;
         let menuWidth = menuElement.clientWidth;
     
         let result;
@@ -51,6 +49,9 @@ const UI = (() => {
             result = 'double';
         } else {
             result = 'triple';
+        }
+        if (result !== 'single') {
+            currentView = listViewElement;
         }
         
         displayState = result;
@@ -65,6 +66,12 @@ const UI = (() => {
                 removeClasses(className, elementsWhoseClassesReflectDisplayState);
             }
         })
+
+        if (displayState === 'single') {
+            updateSingleView();
+        } else {
+            removeClasses('hide', [listViewElement, contentViewElement]);
+        }
 
         setTimeout(()=>{
             let overflow = false;
@@ -81,6 +88,16 @@ const UI = (() => {
                 finishLoading();
             }
         }, 300);
+    }
+
+    function updateSingleView () {
+        [listViewElement, contentViewElement].forEach(view => {
+            if (view !== currentView) {
+                view.classList.add('hide');
+            } else {
+                view.classList.remove('hide');
+            }
+        });
     }
 
     function updateDisplay() {
@@ -199,8 +216,20 @@ const UI = (() => {
         loadToolTips();
     }
 
+    function switchToContentView () {
+        if (displayState === 'single') {
+            currentView = contentViewElement;
+            updateSingleView();
+        }
+    }
+
     return {
-        updateDisplay, initiate, startLoading, hideMenu,
+        updateDisplay,
+        initiate,
+        startLoading,
+        hideMenu,
+        switchToContentView,
+        updateSingleView,
     }
 })()
 
@@ -225,10 +254,18 @@ menuElement.addEventListener('click', (event) => {
 menuContainerElement.addEventListener('click', (event) => {
     UI.hideMenu();
 })
+returnBtnElement.addEventListener('click', event => {
+    currentView = listViewElement;
+    UI.updateSingleView();
+})
 
 // on start
 UI.initiate();
-
+[...document.querySelectorAll('.listView li')].forEach(item => {
+    item.addEventListener('click', event => {
+        UI.switchToContentView();
+    })
+})
 // for testing
 // console.log('--------Testing--------');
 // console.log('----------End of Testing---------')

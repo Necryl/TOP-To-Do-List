@@ -13,10 +13,18 @@
     z-index: 0;
 }
 
+.contentView.hide {
+    display: none;
+}
+
 .contentView .title-wrapper {
     display: grid;
     grid-template-columns: 1fr;
     overflow: visible;
+}
+
+.contentView.single .title-wrapper {
+    grid-template-columns: auto 1fr;
 }
 
 .contentView .itemTitle, .contentView textarea {
@@ -76,12 +84,9 @@
 
 .contentView #return {
     display: none;
+    max-height: 2.5rem;
 }
 
 .contentView.single #return {
     display: initial;
-}
-
-.contentView.single {
-    display: none;
 }

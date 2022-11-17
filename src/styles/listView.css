@@ -11,6 +11,10 @@
     z-index: 1;
 }
 
+.listView.hide {
+    display: none;
+}
+
 .listView .title-wrapper {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -124,6 +128,10 @@
     background-color: rgba(129, 205, 255, 0.123);
 }
 
+.listView.single ul li * {
+    pointer-events: none;
+}
+
 .listView ul li:hover {
     border-color: rgba(255, 255, 255, 0.308);
 }
@@ -187,7 +195,7 @@
     border-radius: 3px;
 }
 
-.listView ul li select:active {
+.listView ul li select:focus {
     background-color: var(--bgCol);
 }
 
