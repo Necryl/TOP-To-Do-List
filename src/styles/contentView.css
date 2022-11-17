@@ -8,6 +8,9 @@
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: 10px;
+
+    position: relative;
+    z-index: 5;
 }
 
 .contentView .title-wrapper {
@@ -36,6 +39,10 @@
 
 .contentView .options * {
     font-size: 1rem;
+}
+
+.contentView .options input[type='date'] {
+    min-width: 13ch;
 }
 
 .contentView .options input, .contentView .options select {
