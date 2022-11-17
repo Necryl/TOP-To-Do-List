@@ -35,6 +35,7 @@
     display: grid;
     grid-auto-flow: column;
     justify-content: space-between;
+    gap: 1ch;
 }
 
 .contentView .options * {
