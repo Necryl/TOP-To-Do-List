@@ -30,6 +30,9 @@ const possibleDisplayStates = ['triple', 'double', 'single'];
 // modules
 const UI = (() => {
     function updateDisplayState () {
+        loadingContainerElement.style.opacity = '100%';
+        loadingContainerElement.style.pointerEvents = 'initial';
+
         let height = rootElement.clientHeight;
         let width = rootElement.clientWidth;
         let ratio = width/height;
@@ -48,7 +51,7 @@ const UI = (() => {
     }
     
     function updateDisplayMode () {
-        console.log('hahahahahha', displayState);
+        
         addClasses(displayState, elementsWhoseClassesReflectDisplayState);
         possibleDisplayStates.forEach(className => {
             if (displayState !== className) {
@@ -69,6 +72,9 @@ const UI = (() => {
                 console.log('there is overflow', 'current displayState: '+displayState);
                 displayState = displayState === 'triple' ? 'double':'single';
                 updateDisplayMode();
+            } else {
+                loadingContainerElement.style.opacity = '0%';
+                loadingContainerElement.style.pointerEvents = 'none';
             }
         }, 300);
     }

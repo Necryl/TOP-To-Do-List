@@ -12,16 +12,26 @@
     background-color: rgba(13, 23, 119, 0.932);
 
     z-index: 11;
+
+    opacity: 0%;
+
+    transition: 100ms;
 }
 
 .loading {
     /* background-color: aqua; */
+    pointer-events: inherit;
 
     display: grid;
 }
 
 .loading h1 {
+    pointer-events: inherit;
     font-size: 55px;
+
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
 }
 
 .loading h1::after {
