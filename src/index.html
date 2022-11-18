@@ -108,19 +108,25 @@
         </div>
     </div>
     <div class="toolTips">
-        <div for=".listView #removeCompleted" place="center">
+        <div for=".listView #removeCompleted" place="single: right">
             <span>remove all completed tasks</span>
         </div>
         <div for=".contentView #delete" place="right">
             <span>delete this task</span>
         </div>
-        <div for=".listView .listItems .task select, .contentView .options #priority" place="center">
+        <div for=".listView .listItems .task select" place="center">
             <span>Priority Level</span>
+        </div>
+        <div for=".contentView .options #priority" place="single: left">
+            <span>Priority Level</span>
+        </div>
+        <div for=".listView #newBtn" place="triple: bottom; single: right">
+            <span>Create new task</span>
         </div>
     </div>
     <div class="loading-container">
         <div class="loading">
-            <h1>Loading &#8212 Please Wait</h1>
+            <h1>Loading</h1>
         </div>
     </div>
 </body>

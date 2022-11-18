@@ -168,41 +168,195 @@ const UI = (() => {
         };
     }
 
-    async function loadToolTips () {
+    async function loadToolTips (tooltips=getChildElements(toolTipsElement)) { // expects paramater <toolTips> to contain an array of toolTip elements
         loadingProcessStatus.loadingTooltips = true;
-        let tooltips = getChildElements(toolTipsElement);
         await tooltips.forEach(element => {
             let childElement = getChildElements(element)[0];
-            let alignment = element.getAttribute('place');
-            childElement.classList.add(alignment);
+            let alignment = element.getAttribute('place'); // examples to demonstrate format for 'place' (HTML attribute) (<-> seperates different examples) ---> center <-> triple: center <-> double: right; triple: left bottom; <-> left; single: center top; <-> left bottom; double: center;
+            let defaultAlignment = '; center';
+            alignment = alignment === null ? defaultAlignment:alignment+defaultAlignment; // takes care of it if there is no place attribute in the html or if the place attribute contains an empty or invalid string
+            alignment = alignment.split(';').reduce((final, current) => {
+                if (current.trim().length > 0) {
+                    let result;
+                    if (current.includes(':')) {
+                        result = current.trim().split(':');
+                        result.unshift(result.shift());
+                        result[1] = result[1].trim().split(' ');
+                    } else {
+                        result = ['rest', current.trim().split(' ')];
+                    }
+                    if (result[1].length === 1) {
+                        if (['center', 'right', 'left'].includes(result[1][0])) {
+                            result[1].push('top');
+                        } else if (['top', 'bottom'].includes(result[1][0])) {
+                            result[1].unshift('center');
+                        }
+                    }
+                    let switchAlignX = false;
+                    let switchAlignY = false;
+                    if (['top', 'bottom'].includes(result[1][0])) {
+                        switchAlignX = result[1][0];
+                    }
+                    if (['right', 'left', 'center'].includes(result[1][1])) {
+                        switchAlignY = result[1][1];
+                    }
+                    if (switchAlignX !== false) {
+                        result[1][1] = switchAlignX;
+                    }
+                    if (switchAlignY !== false) {
+                        result[1][0] = switchAlignY;
+                    }
+
+                    let correctFormat = true; // only push to final if result is in the correct format
+                    if (!possibleDisplayStates.includes(result[0]) && 'rest' !== result[0]) {
+                        correctFormat = false;
+                    }
+                    result[1].forEach(item => {
+                        if (!['center', 'right', 'left', 'top', 'bottom'].includes(item)) {
+                            correctFormat = false;
+                        }
+                    });
+                    if (correctFormat) {
+                        final.push(result);
+                    }
+                }
+                return final;
+            }, []); // returns in the following format ---> ['<viewMode ('rest' means all unspecified viewmodes)>', ['<horzontal alignment>', '<vertical alignment>']]
+            alignment = (() => {
+                let viewModes = [[], [], [], []] // [triple, double, single, rest]
+                alignment.forEach((item) => {
+                    if (item[0] === 'rest') {
+                        viewModes[3].push(item);
+                    } else if (item[0] === 'triple') {
+                        viewModes[0].push(item);
+                    } else if (item[0] === 'double') {
+                        viewModes[1].push(item);
+                    } else if (item[0] === 'single') {
+                        viewModes[2].push(item);
+                    }
+                });
+                return viewModes.reduce((final, current) => {
+                    if (current.length > 0) {
+                        final.push(current[0]);
+                    }
+                    return final;
+                }, []);
+            })() // making sure that there is only one instance of each viewmode or of type 'rest'
             
-            let getCoordX;
-            if (alignment === 'center') {
-                getCoordX = (spatialData) => {
-                    return spatialData.x + (Math.round(spatialData.width/2));
-                }
-            } else if (alignment === 'left') {
-                getCoordX = (spatialData) => {
-                    return spatialData.x;
-                }
-            } else if(alignment === 'right') {
-                getCoordX = (spatialData) => {
-                    return spatialData.x + (Math.round(spatialData.width));
-                }
-            }
+            // an array of classes to be applied to the child span of the toolTip div element
+            let alignmentClasses = (()=>{
+                let viewmodes = possibleDisplayStates.slice(0);
+                return alignment.reduce((final, current) => {
+                    if (current[0] !== 'rest') {
+                        viewmodes.splice(viewmodes.indexOf(current[0]), 1);
+                        current[1].forEach(item => {
+                            final.push(current[0]+'-'+item);
+                        });
+                    } else {
+                        current[1].forEach(item => {
+                            viewmodes.forEach(view => {
+                                final.push(view+'-'+item);
+                            });
+                        })
+                    }
+                    return final;
+                }, [])
+            })(); // these classes are in the format of ---> '<viewmode>-<alignment>' | Examples: ---> 'double-right', 'triple-center', 'single-top', 'double-bottom', 'single-left'
+
+            alignmentClasses.forEach(className => {
+                childElement.classList.add(className);
+            });
+            
+            let getCoords = {
+                'triple': {
+                    x: undefined,
+                    y: undefined
+                },
+                'double': {
+                    x: undefined,
+                    y: undefined
+                },
+                'single': {
+                    X: undefined,
+                    y: undefined
+                },
+            };
+            (()=>{
+                let viewmodes = possibleDisplayStates.slice(0);
+                alignment.forEach(instruction => {
+                    let view = instruction[0];
+                    let alignX = instruction[1][0];
+                    let alignY = instruction[1][1];
+                    if (view !== 'rest') {
+                        viewmodes.splice(viewmodes.indexOf(view), 1);
+                    } else {
+                        view = viewmodes;
+                    }
+                    if (!Array.isArray(view)) {
+                        view = [view];
+                    }
+                    view.forEach(viewMode => {
+                        if (alignX === 'center') {
+                            getCoords[viewMode].x = (spatialData) => {
+                                return spatialData.x + (Math.round(spatialData.width/2));
+                            }
+                        } else if (alignX === 'left') {
+                            getCoords[viewMode].x = (spatialData) => {
+                                return spatialData.left;
+                            }
+                        } else if(alignX === 'right') {
+                            getCoords[viewMode].x = (spatialData) => {
+                                return spatialData.right;
+                            }
+                        }
+                        if (alignY === 'top') {
+                            getCoords[viewMode].y = (spatialData) => {
+                                return spatialData.top;
+                            }
+                        } else if (alignY === 'bottom') {
+                            getCoords[viewMode].y = (spatialData) => {
+                                return spatialData.bottom;
+                            }
+                        }
+                    })
+                })
+            })() // create and adds the functions for getCoords object that is specialised for the given alignment
             
             let targetElements = [...document.querySelectorAll(element.getAttribute('for'))];
 
-            targetElements.forEach(targetElem => {
-                targetElem.addEventListener('mouseover', (event) => {
-                    element.classList.add('show');
+
+            let showEvent = (event, targetElem) => {
+                element.classList.add('show');
                     let spatialData = getOffset(targetElem);
-                    let coordX = getCoordX(spatialData);
-                    let coordY = spatialData.y;
+                    let coordX = getCoords[displayState].x(spatialData);
+                    let coordY = getCoords[displayState].y(spatialData);
                     element.style = `--positionX: ${coordX}px; --positionY: ${coordY}px;`;
+            }
+            let hideEvent = (event) => {
+                element.classList.remove('show');
+            }
+
+            targetElements.forEach(targetElem => {
+                let tooltipStatus = false;
+                targetElem.addEventListener('mouseover', (event) => {
+                    if (tooltipStatus === false) {
+                        tooltipStatus = true;
+                        showEvent(event, targetElem);
+                    }
                 });
-                targetElem.addEventListener('mouseout', (event) => {
-                    element.classList.remove('show');
+                targetElem.addEventListener('focus', (event) => {
+                    if (tooltipStatus === false) {
+                        tooltipStatus = true;
+                        showEvent(event, targetElem);
+                    }
+                });
+                targetElem.addEventListener('mouseout', event => {
+                    tooltipStatus = false;
+                    hideEvent(event);
+                });
+                targetElem.addEventListener('blur', event => {
+                    tooltipStatus = false;
+                    hideEvent(event);
                 });
             })
         });

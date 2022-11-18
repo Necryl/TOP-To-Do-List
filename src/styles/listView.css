@@ -128,7 +128,7 @@
     background-color: rgba(129, 205, 255, 0.123);
 }
 
-.listView.single ul li * {
+.listView.single ul li *:not(input[type='checkbox']) {
     pointer-events: none;
 }
 

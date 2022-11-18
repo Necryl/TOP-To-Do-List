@@ -17,28 +17,33 @@
 
     top: var(--positionY);
     left: var(--positionX);
+
+    /* border: 1px solid red; */
 }
 
 .toolTips > div > span {
     position: absolute;
     z-index: 10;
-    bottom: 100%;
-    left: 50%;
-    translate: -50% -15px;
-
+    
     opacity: 0%;
     transition: 200ms;
-
+    
     width: 150px;
-
+    
     --tooltipBG: rgba(0, 0, 0, 0.856);
-
+    
     background-color: var(--tooltipBG);
     color: white;
     text-align: center;
     padding: 5px 7px;
     border-radius: 8px;
     pointer-events: none;
+    
+    /* default positioning */
+    bottom: 100%;
+    left: 50%;
+    --verticalOffset: -15px;
+    translate: -50% var(--verticalOffset);
 }
 
 .toolTips > div.show > span {
@@ -46,31 +51,45 @@
     pointer-events: auto;
 }
 
-.toolTips > div > span.left {
+.toolTips > div > :is(body.triple span.triple-left, body.double span.double-left, body.single span.single-left) {
     left: 0%;
-    translate: -8% -15px;
+    translate: -8% var(--verticalOffset);
 }
 
-.toolTips > div > span.right {
+.toolTips > div > :is(body.triple span.triple-right, body.double span.double-right, body.single span.single-right) {
     right: 0%;
     left: auto;
-    translate: 8% -15px;
+    translate: 8% var(--verticalOffset);
+}
+
+.toolTips > div > :is(body.triple span.triple-bottom, body.double span.double-bottom, body.single span.single-bottom) {
+    --verticalOffset: 15px;
+    top: 100%;
+    bottom: auto;
 }
 
 .toolTips > div > span::after {
     content: "";
     position: absolute;
-    top: 100%;
-    left: 50%;
     --size: 7px;
     margin-left: calc(var(--size)*-1);
     border-width: var(--size);
     border-style: solid;
+    
+    /* default horizontal positioning */
+    left: 50%;
+    /* default vertical positioning */
+    top: 100%;
     border-color: var(--tooltipBG) transparent transparent transparent;
 }
-.toolTips > div > span.left::after {
+.toolTips > div > :is(body.triple span.triple-left, body.double span.double-left, body.single span.single-left)::after {
     left: 15%;
 }
-.toolTips > div > span.right::after {
+.toolTips > div > :is(body.triple span.triple-right, body.double span.double-right, body.single span.single-right)::after {
     left: 85%;
+}
+.toolTips > div > :is(body.triple span.triple-bottom, body.double span.double-bottom, body.single span.single-bottom)::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent var(--tooltipBG) transparent;
 }
