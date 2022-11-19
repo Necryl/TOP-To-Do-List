@@ -5,6 +5,7 @@ import listViewtyles from "./../styles/listView.css"
 import contentViewStyles from "./../styles/contentView.css"
 import loadingStyles from "./../styles/loading.css"
 import tooltipStyles from "./../styles/tooltips.css"
+import alertViewStyles from "./../styles/alertView.css"
 
 // elements
 const rootElement = document.querySelector(':root');
@@ -19,12 +20,15 @@ const contentViewElement = document.querySelector('.contentView');
 const listViewOptionsElement = document.querySelector('.listView .options');
 const loadingContainerElement = document.querySelector('.loading-container');
 const toolTipsElement = document.querySelector('.toolTips');
+const alertViewElement = document.querySelector('.alertView');
+const alertMsgElement = document.querySelector('.alertView .alert-message');
+const alertBtnsContainer = document.querySelector('.alertView .alertBtns-container');;
 
 
 // state variables
 let displayState; // possible states: triple, double, single
 let currentView = listViewElement;
-let currentList;
+let currentList = 'All Tasks';
 let currentItem;
 let loadingStatus = {
     UI: false,
@@ -38,13 +42,13 @@ const possibleDisplayStates = ['triple', 'double', 'single'];
 
 // modules
 function createModule (inputObject) {
+    let name = inputObject.name;
     let loadingProcessStatus = {};
     inputObject.processes.forEach(process => {
         loadingProcessStatus[process] = false;
     });
     
-
-    return {loadingProcessStatus, ...inputObject.components};
+    return {loadingProcessStatus, name, ...inputObject.components};
 }
 
 const UI = (() => {
@@ -381,7 +385,28 @@ const UI = (() => {
         }
     }
 
+    function alert (message) { // expected parameters --> message, button <- You can provide as many buttons as you want but each button must be an array with the first item being the label, and the second should be the function to run when the button is clicked
+        alertMsgElement.textContent = message;
+
+        while(alertBtnsContainer.firstChild) {
+            alertBtnsContainer.removeChild(alertBtnsContainer.firstChild);
+        }
+        for (let i = 1; i < arguments.length; i++) {
+            let btnElement = document.createElement('button');
+            btnElement.textContent = arguments[i][0];
+            btnElement.addEventListener('click', (event) => {
+                alertViewElement.style.display = 'none';
+                arguments[i][1]();
+            });
+            alertBtnsContainer.appendChild(btnElement);
+        }
+        alertViewElement.style.display = 'grid';
+    }
+    
+    function loadData () {}
+
     return createModule({
+        name: 'UI',
         processes: ['updatingDisplay', 'loadingTooltips'],
         components: {
             updateDisplay,
@@ -392,49 +417,222 @@ const UI = (() => {
             loadingScreenVisible,
             showLoadingScreen,
             hideLoadingScreen,
+            loadData,
+            alert,
         }
     });
 })()
 
 const Data = (()=>{    
-    let taskLists = [];
-    let noteLists = [];
-
-    function createList (type) {
-        let items = [];
-        let result = {name:'', type, items}
-        let addItem = (item) => {
-            item.index = items.length;
-            items.push(item);
-        };
-        let removeItem = (itemIndex) => {
-            items[itemIndex] = 'removed';
-        }
-        result.addItem = addItem;
-        result.removeItem = removeItem;
-        return result;
+    const listNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems'];
+        
+    function spawnNewList (name, type) {
+        let typeLists = data.get(type+'Lists');
+        let index = getNewIndex(typeLists);
+        typeLists.push(index);
+        data.set(type+'Lists', typeLists);
+        let listName = type+'List_'+index;
+        data.set(listName+'_name', name);
+        data.set(listName, []);
     }
 
+    function removeList (index, type) {
+        console.log('removing list');
+        let listName = type+'List_'+index;
+        let listItems = data.get(listName);
+        listItems.forEach(itemIndex => removeItem(itemIndex, type));
+        let typeLists = data.get(type+'Lists');
+        typeLists.splice(typeLists.indexOf(index), 1);
+        data.set(type+'Lists', typeLists);
+        data.remove(listName+'_name');
+        data.remove(listName);
+    }
+
+    function spawnNewItem (listIndex, type) {
+        let item = createItem(type);
+        let listName = type+'List_'+listIndex;
+        let list = data.get(listName);
+        let index = getNewIndex(list);
+        list.push(index);
+        data.set(listName, list);
+        let typeList = data.get(type+'Items');
+        typeList.push(index);
+        data.set(type+'Items', typeList);
+        let itemName = type+'Item_'+index;
+        data.set(itemName, item);
+    }
+
+    function removeItem (index, type) {
+        let itemName = type+'Item_'+index;
+        let item = data.get(itemName);
+        let listName = type+'List_'+item.listIndex;
+        let list = data.get(listName);
+        list.splice(list.indexOf(index), 1);
+        data.set(listName, list);
+        let typeList = data.get(type+'Items');
+        typeList.splice(typeList.indexOf(index), 1);
+        data.set(type+'Items', typeList);
+        data.remove(itemName);
+    }
+
+    function getNewIndex (arrayOfIndexes) {
+        for (let i = 0; i < arrayOfIndexes.length+1; i++) {
+            if (!arrayOfIndexes.includes(i)) {
+                return i;
+                break;
+            }
+        }
+    }
+    
     function createItem (type) {
         let result = {
             type,
-            checked: false,
+            listIndex,
             title: '',
             textBody: '',
-            index: null,
         };
         if (type === 'task') {
             result.priority = 'normal';
             result.date = 'No due date';
+            result.checked = false;
         }
 
         return result;
     }
 
+    function getList (index, type) {
+        let id = type+'List_'+index;
+        let name = data.get(id+'_name');
+        let allList = 'All '+type[0].toUpperCase()+type.slice(1)+'s';
+        if (name === allList) {
+            return data.get(type+'Items');
+        } else {
+            return data.get(id);
+        }
+    }
+
+    // localStorageExample = {
+    //     TOP_Project_ToDoList_StorageExists: true,
+    //     taskLists: [1, 3, 4, 5, 6],
+    //     noteLists: [1, 2, 3, 4, 7, 8],
+    //     taskItems: [1, 2, 3, 4, 5, 6, 12, 8],
+    //     noteItems: [1, 2, 3, 5],
+    //     taskList_1_name: "Daily",
+    //     taskList_1: [4, 5, 6, 12, 8],
+    //     taskList_3_name: "Daily",
+    //     taskList_3: [1, 2, 3],
+    //     taskItem_1: {checked, title, textbody, priority, date},
+    //     noteItem_1: {title, textBody}
+    // }
+
+    function loadAnew () {
+        localStorage.clear();
+        data.set('TOP_Project_ToDoList_StorageExists', true);
+        listNames.forEach(name => data.set(name, []));
+        spawnNewList('All Tasks', 'task');
+        spawnNewList('All Notes', 'note');
+    }
+
+    function verifyData () {
+        Engine.setLoadingStatus(Data, 'verifyingData', true);
+        let result = true;
+        let listsExist = listNames.reduce((final, current) => {
+            if (data.exists(current) === false) {
+                final = false;
+            }
+            return final;
+        }, true);
+        if (listsExist) {
+            let subListsAndItemsExist = listNames.reduce((final, currentListName) => {
+                data.get(currentListName).forEach(subListIndex => {
+                    let subListName = currentListName.slice(0, currentListName.length-1)+'_'+subListIndex;
+                    if (!Number.isInteger(subListIndex)) {
+                        final = false;
+                    } else if (data.exists(subListName) === false || data.exists(subListName+'_name') === false) {
+                        final = false;
+                    } else if (data.get(subListName+'_name').trim() === '') {
+                        final = false;
+                    } else {
+                        let itemsExist = data.get(subListName).reduce((itemTestFinal, currentItemIndex) => {
+                            let itemName = subListName.slice(0, 4)+'Item_'+currentItemIndex;
+                            if (!Number.isInteger(currentItemIndex)) {
+                                itemTestFinal = false;
+                            } else if (data.exists(itemName) === false) {
+                                itemTestFinal = false;
+                            } else {
+                                let item = data.get(itemName);
+                                if (!isObject(item)) {
+                                    itemTestFinal = false;
+                                } else if (item.type !== 'task' || item.type !== 'note') {
+                                    itemTestFinal = false;
+                                } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
+                                    itemTestFinal = false;
+                                } else if (item.type === 'task') {
+                                    if (typeof item.date !== 'string' || typeof item.checked !== 'boolean') {
+                                        itemTestFinal = false;
+                                    } else if (item.priority !== 'low' || item.priority !== 'normal' || item.priority !== 'high' || item.priority !== 'urgent') {
+                                        itemTestFinal = false;
+                                    }
+                                }
+                            }
+                            return itemTestFinal;
+                        }, true)
+                        if (itemsExist === false) {
+                            final = false;
+                        }
+                    }
+                })
+                return final;
+            }, true);
+            if (subListsAndItemsExist === false) {
+                result = false;
+            }
+        } else {
+            result = false;
+        }
+        if (result === true || result === false) {
+            Engine.setLoadingStatus(Data, 'verifyingData', false);
+        }
+        return result;
+    }
+
+    function initiate () {
+        Engine.setLoadingStatus(Data, 'loadingData', true);
+        let result;
+        if (data.get('TOP_Project_ToDoList_StorageExists') === true) {
+            console.log('We have pre-existing data');
+            result = verifyData();
+        } else {
+            console.log('Found no pre-existing data');
+            loadAnew();
+            result = 'new';
+        }
+        if (result !== undefined) {
+            Engine.setLoadingStatus(Data, 'loadingData', false);
+            return result;
+        }
+    }
+
+    const data = {
+        set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+        get: key => JSON.parse(localStorage.getItem(key)),
+        remove: key => localStorage.removeItem(key),
+        exists: key => localStorage.getItem(key) === null ? false:true, 
+    }
+
     return createModule({
-        processes: [],
+        name: 'Data',
+        processes: ['verifyingData', 'loadingData'],
         components: {
-            createList,
+            getNewIndex,
+            createItem,
+            getList,
+            initiate,
+            loadAnew,
+            spawnNewItem,
+            spawnNewList,
+            removeItem,
+            removeList,
         }
     });
 })();
@@ -443,6 +641,20 @@ const Engine =(()=>{
     
     function initialise () {
         UI.initiate();
+        let dataResult = Data.initiate();
+        if (dataResult === false) {
+            UI.alert("Found old data, but it seems corrupted. Your data is going to be reset.", ["Ok", ()=>{Engine.resetData()}]);
+        } else {
+            UI.loadData();
+        }
+
+    }
+
+    async function resetData () {
+        setLoadingStatus(Engine, 'resetingData', true);
+        await Data.loadAnew();
+        await UI.loadData();
+        setLoadingStatus(Engine, 'resetingData', false);
     }
 
     const loading = {
@@ -463,7 +675,7 @@ const Engine =(()=>{
     function setLoadingStatus (module, process, status) {
         if (status === true) {
             module.loadingProcessStatus[process] = true;
-            loadingStatus[module] = true;
+            loadingStatus[module.name] = true;
             if (UI.loadingScreenVisible === false) {
                 loading.start();
             }
@@ -476,17 +688,25 @@ const Engine =(()=>{
                 }
             });
             if (ready) {
-                loadingStatus[module] = false;
+                loadingStatus[module.name] = false;
                 loading.finish();
             }
         }
     }
+
+    function newList () {}
     
-    return {
-        initialise,
-        loading,
-        setLoadingStatus,
-    };
+    return createModule({
+        name: 'Engine',
+        processes: ['resetingData'],
+        components: {
+            initialise,
+            loading,
+            setLoadingStatus,
+            newList,
+            resetData,
+        }
+    });
 })()
 
 // events
@@ -515,7 +735,22 @@ returnBtnElement.addEventListener('click', event => {
     UI.updateSingleView();
 })
 
+// tool functions
+function isObject (subject) {
+    if (
+        typeof subject === 'object' &&
+        !Array.isArray(yourVariable) &&
+        yourVariable !== null
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 // on start
+// localStorage.clear();
+// localStorage.TOP_Project_ToDoList_StorageExists = true;
 Engine.initialise();
 [...document.querySelectorAll('.listView li')].forEach(item => {
     item.addEventListener('click', event => {

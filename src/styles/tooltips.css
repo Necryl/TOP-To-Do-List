@@ -23,7 +23,7 @@
 
 .toolTips > div > span {
     position: absolute;
-    z-index: 10;
+    z-index: 3;
     
     opacity: 0%;
     transition: 200ms;

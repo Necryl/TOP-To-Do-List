@@ -1,0 +1,61 @@
+.alertView {
+    position: fixed;
+    z-index: 4;
+    top: 0%;
+    left: 0%;
+    height: 100%;
+    width: 100%;
+
+    display: none; /* will be 'grid' via javascript */
+    place-content: center;
+
+    background-color: rgba(0, 0, 0, 0.589);
+}
+
+.alertBox {
+    background-color: rgb(110, 45, 45);
+
+    width: min(100vw, 400px);
+    padding: 3vw;
+    border: 2px solid rgb(204, 71, 71);
+    border-radius: 0.5rem;
+
+    display: grid;
+    gap: 1rem;
+}
+
+.alert-message {
+    font-size: 1.75rem;
+    text-align: center;
+    color: rgb(238, 236, 218);
+}
+
+.alertBtns-container {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: space-around;
+}
+
+.alertBtns-container button {
+    padding: 0.25em 0.5em;
+    
+    font-size: 1.2rem;
+    font-weight: bold;
+
+    background-color: rgb(231, 167, 48);
+    border: 2px solid rgb(0, 0, 0);
+    border-radius: 0.25em;
+    color: black;
+
+    transition: 100ms;
+}
+.alertBtns-container button:hover {
+    background-color: rgb(221, 61, 69);
+    outline: 1px solid black;
+    /* color: white; */
+    scale: 105%;
+}
+.alertBtns-container button:active {
+    scale: 97%;
+    transition: 50ms;
+}
