@@ -24,21 +24,36 @@ const toolTipsElement = document.querySelector('.toolTips');
 // state variables
 let displayState; // possible states: triple, double, single
 let currentView = listViewElement;
+let currentList;
+let currentItem;
+let loadingStatus = {
+    UI: false,
+    Data: false,
+    Engine: false,
+}
 
 // hardcoded data
 const elementsWhoseClassesReflectDisplayState = [bodyElement, menuElement, listViewElement, contentViewElement];
 const possibleDisplayStates = ['triple', 'double', 'single'];
 
 // modules
+function createModule (inputObject) {
+    let loadingProcessStatus = {};
+    inputObject.processes.forEach(process => {
+        loadingProcessStatus[process] = false;
+    });
+    
+
+    return {loadingProcessStatus, ...inputObject.components};
+}
+
 const UI = (() => {
-    let loadingProcessStatus = {
-        updatingDisplay: false,
-        loadingTooltips: false,
-    };
+
+    let loadingScreenVisible = false;
 
     function updateDisplayState () {
 
-        loadingProcessStatus.updatingDisplay = true;
+        Engine.setLoadingStatus(UI, 'updatingDisplay', true);
 
         let width = rootElement.clientWidth;
         let menuWidth = menuElement.clientWidth;
@@ -58,8 +73,7 @@ const UI = (() => {
         updateDisplayMode();
     }
     
-    function updateDisplayMode () {
-        
+    function updateDisplayMode () {        
         addClasses(displayState, elementsWhoseClassesReflectDisplayState);
         possibleDisplayStates.forEach(className => {
             if (displayState !== className) {
@@ -84,8 +98,7 @@ const UI = (() => {
                 displayState = displayState === 'triple' ? 'double':'single';
                 updateDisplayMode();
             } else {
-                loadingProcessStatus.updatingDisplay = false;
-                finishLoading();
+                Engine.setLoadingStatus(UI, 'updatingDisplay', false);
             }
         }, 300);
     }
@@ -101,7 +114,6 @@ const UI = (() => {
     }
 
     function updateDisplay() {
-        startLoading();
         updateDisplayState();
     }
     
@@ -127,22 +139,16 @@ const UI = (() => {
         elements.forEach(elem => {elem.classList.remove(className);});
     }
 
-    function startLoading () {
+    function showLoadingScreen () {
         loadingContainerElement.style.opacity = '100%';
         loadingContainerElement.style.pointerEvents = 'initial';
+        loadingScreenVisible = true;
     }
 
-    function finishLoading () {
-        let ready = true;
-        Object.values(loadingProcessStatus).forEach(process => {
-            if (process === true) {
-                ready = false;
-            }
-        });
-        if (ready) {
-            loadingContainerElement.style.opacity = '0%';
-            loadingContainerElement.style.pointerEvents = 'none';
-        }
+    function hideLoadingScreen () {
+        loadingContainerElement.style.opacity = '0%';
+        loadingContainerElement.style.pointerEvents = 'none';
+        loadingScreenVisible = false;
     }
 
     function getChildElements (element) {
@@ -154,8 +160,8 @@ const UI = (() => {
         }, []);
     }
 
-    function getOffset(el) {
-        const rect = el.getBoundingClientRect();
+    function getOffset(element) {
+        const rect = element.getBoundingClientRect();
         return {
           left: Math.round(rect.left + window.scrollX),
           right: Math.round(rect.right + window.scrollX),
@@ -169,7 +175,7 @@ const UI = (() => {
     }
 
     async function loadToolTips (tooltips=getChildElements(toolTipsElement)) { // expects paramater <toolTips> to contain an array of toolTip elements
-        loadingProcessStatus.loadingTooltips = true;
+        Engine.setLoadingStatus(UI, 'loadingTooltips', true);
         await tooltips.forEach(element => {
             let childElement = getChildElements(element)[0];
             let alignment = element.getAttribute('place'); // examples to demonstrate format for 'place' (HTML attribute) (<-> seperates different examples) ---> center <-> triple: center <-> double: right; triple: left bottom; <-> left; single: center top; <-> left bottom; double: center;
@@ -360,12 +366,10 @@ const UI = (() => {
                 });
             })
         });
-        loadingProcessStatus.loadingTooltips = false;
-        finishLoading();
+        Engine.setLoadingStatus(UI, 'loadingTooltips', false);
     }
 
     function initiate () {
-        startLoading();
         updateDisplayState();
         loadToolTips();
     }
@@ -377,14 +381,112 @@ const UI = (() => {
         }
     }
 
-    return {
-        updateDisplay,
-        initiate,
-        startLoading,
-        hideMenu,
-        switchToContentView,
-        updateSingleView,
+    return createModule({
+        processes: ['updatingDisplay', 'loadingTooltips'],
+        components: {
+            updateDisplay,
+            initiate,
+            hideMenu,
+            switchToContentView,
+            updateSingleView,
+            loadingScreenVisible,
+            showLoadingScreen,
+            hideLoadingScreen,
+        }
+    });
+})()
+
+const Data = (()=>{    
+    let taskLists = [];
+    let noteLists = [];
+
+    function createList (type) {
+        let items = [];
+        let result = {name:'', type, items}
+        let addItem = (item) => {
+            item.index = items.length;
+            items.push(item);
+        };
+        let removeItem = (itemIndex) => {
+            items[itemIndex] = 'removed';
+        }
+        result.addItem = addItem;
+        result.removeItem = removeItem;
+        return result;
     }
+
+    function createItem (type) {
+        let result = {
+            type,
+            checked: false,
+            title: '',
+            textBody: '',
+            index: null,
+        };
+        if (type === 'task') {
+            result.priority = 'normal';
+            result.date = 'No due date';
+        }
+
+        return result;
+    }
+
+    return createModule({
+        processes: [],
+        components: {
+            createList,
+        }
+    });
+})();
+
+const Engine =(()=>{
+    
+    function initialise () {
+        UI.initiate();
+    }
+
+    const loading = {
+        start: () => {UI.showLoadingScreen()},
+        finish: () => {
+            let ready = true;
+            Object.values(loadingStatus).forEach(process => {
+                if (process === true) {
+                    ready = false;
+                }
+            });
+            if (ready) {
+                UI.hideLoadingScreen();
+            }
+        }
+    }
+
+    function setLoadingStatus (module, process, status) {
+        if (status === true) {
+            module.loadingProcessStatus[process] = true;
+            loadingStatus[module] = true;
+            if (UI.loadingScreenVisible === false) {
+                loading.start();
+            }
+        } else if (status === false) {
+            module.loadingProcessStatus[process] = false;
+            let ready = true;
+            Object.values(module.loadingProcessStatus).forEach(process => {
+                if (process === true) {
+                    ready = false;
+                }
+            });
+            if (ready) {
+                loadingStatus[module] = false;
+                loading.finish();
+            }
+        }
+    }
+    
+    return {
+        initialise,
+        loading,
+        setLoadingStatus,
+    };
 })()
 
 // events
@@ -414,7 +516,7 @@ returnBtnElement.addEventListener('click', event => {
 })
 
 // on start
-UI.initiate();
+Engine.initialise();
 [...document.querySelectorAll('.listView li')].forEach(item => {
     item.addEventListener('click', event => {
         UI.switchToContentView();
