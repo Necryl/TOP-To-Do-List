@@ -7,6 +7,9 @@ import loadingStyles from "./../styles/loading.css"
 import tooltipStyles from "./../styles/tooltips.css"
 import alertViewStyles from "./../styles/alertView.css"
 
+// importing modules
+import _, { trim } from "lodash"
+
 // elements
 const rootElement = document.querySelector(':root');
 const bodyElement = document.querySelector('body');
@@ -23,6 +26,7 @@ const toolTipsElement = document.querySelector('.toolTips');
 const alertViewElement = document.querySelector('.alertView');
 const alertMsgElement = document.querySelector('.alertView .alert-message');
 const alertBtnsContainer = document.querySelector('.alertView .alertBtns-container');;
+const alertTitleElement = document.querySelector('.alertView .alert-title');
 
 
 // state variables
@@ -385,13 +389,16 @@ const UI = (() => {
         }
     }
 
-    function alert (message) { // expected parameters --> message, button <- You can provide as many buttons as you want but each button must be an array with the first item being the label, and the second should be the function to run when the button is clicked
+    function alert (title, message) { // expected parameters --> title, message, button <- You can provide as many buttons as you want but each button must be an array with the first item being the label, and the second should be the function to run when the button is clicked
+        if (title !== '') {
+            alertTitleElement.textContent = title;
+        }
         alertMsgElement.textContent = message;
 
         while(alertBtnsContainer.firstChild) {
             alertBtnsContainer.removeChild(alertBtnsContainer.firstChild);
         }
-        for (let i = 1; i < arguments.length; i++) {
+        for (let i = 2; i < arguments.length; i++) {
             let btnElement = document.createElement('button');
             btnElement.textContent = arguments[i][0];
             btnElement.addEventListener('click', (event) => {
@@ -424,7 +431,7 @@ const UI = (() => {
 })()
 
 const Data = (()=>{    
-    const listNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems'];
+    const listNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems', 'taskList_0', 'noteList_0'];
         
     function spawnNewList (name, type) {
         let typeLists = data.get(type+'Lists');
@@ -561,7 +568,7 @@ const Data = (()=>{
                                 itemTestFinal = false;
                             } else {
                                 let item = data.get(itemName);
-                                if (!isObject(item)) {
+                                if (!isOfType(item, "object")) {
                                     itemTestFinal = false;
                                 } else if (item.type !== 'task' || item.type !== 'note') {
                                     itemTestFinal = false;
@@ -620,6 +627,10 @@ const Data = (()=>{
         exists: key => localStorage.getItem(key) === null ? false:true, 
     }
 
+    function logLocalStorage () {
+        console.table(_.sortBy(Object.entries(localStorage)));
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -633,6 +644,8 @@ const Data = (()=>{
             spawnNewList,
             removeItem,
             removeList,
+            data,
+            logLocalStorage,
         }
     });
 })();
@@ -643,7 +656,7 @@ const Engine =(()=>{
         UI.initiate();
         let dataResult = Data.initiate();
         if (dataResult === false) {
-            UI.alert("Found old data, but it seems corrupted. Your data is going to be reset.", ["Ok", ()=>{Engine.resetData()}]);
+            UI.alert("Alert", "Found old data, but it seems corrupted. Your data is going to be reset.", ["Ok", ()=>{Engine.resetData()}]);
         } else {
             UI.loadData();
         }
@@ -736,17 +749,31 @@ returnBtnElement.addEventListener('click', event => {
 })
 
 // tool functions
-function isObject (subject) {
-    if (
-        typeof subject === 'object' &&
-        !Array.isArray(yourVariable) &&
-        yourVariable !== null
-    ) {
-        return true;
+function isOfType(subject, type=undefined) {
+    if (typeof type !== 'string') {
+        type = undefined;
+    }
+    let subjectType = Object.prototype.toString.call(subject);
+    subjectType = subjectType.slice(8, subjectType.length-1).toLowerCase();
+    if (type === undefined) {
+        return subjectType;
     } else {
-        return false;
+        return subjectType === type;
     }
 }
+
+function compareMultipleItemsAsEqual () {
+    let verdict = true;
+    for (let i = 0; i < arguments.length-1; i++) {
+        let item1 = arguments[i];
+        let item2 = arguments[i+1];
+        if (_.isEqual(item1, item2) === false) {
+            verdict = false;
+            break;
+        }
+    }
+    return verdict;
+};
 
 // on start
 // localStorage.clear();
@@ -756,7 +783,8 @@ Engine.initialise();
     item.addEventListener('click', event => {
         UI.switchToContentView();
     })
-})
+});
 // for testing
 // console.log('--------Testing--------');
+Data.logLocalStorage();
 // console.log('----------End of Testing---------')
