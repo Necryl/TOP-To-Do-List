@@ -8,7 +8,7 @@ import tooltipStyles from "./../styles/tooltips.css"
 import alertViewStyles from "./../styles/alertView.css"
 
 // importing modules
-import _, { trim } from "lodash"
+import _ from "lodash"
 
 // elements
 const rootElement = document.querySelector(':root');
@@ -431,9 +431,9 @@ const UI = (() => {
 })()
 
 const Data = (()=>{    
-    const listNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems', 'taskList_0', 'noteList_0'];
+    const defaultListNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems', 'taskList_0', 'noteList_0'];
         
-    function spawnNewList (name, type) {
+    function spawnNewList (type, name) {
         let typeLists = data.get(type+'Lists');
         let index = getNewIndex(typeLists);
         typeLists.push(index);
@@ -443,20 +443,23 @@ const Data = (()=>{
         data.set(listName, []);
     }
 
-    function removeList (index, type) {
-        console.log('removing list');
+    function removeList (type, index) {
         let listName = type+'List_'+index;
-        let listItems = data.get(listName);
-        listItems.forEach(itemIndex => removeItem(itemIndex, type));
-        let typeLists = data.get(type+'Lists');
-        typeLists.splice(typeLists.indexOf(index), 1);
-        data.set(type+'Lists', typeLists);
-        data.remove(listName+'_name');
-        data.remove(listName);
+        if (data.exists(listName)) {
+            let listItems = data.get(listName);
+            listItems.forEach(itemIndex => removeItem(itemIndex, type));
+            let typeLists = data.get(type+'Lists');
+            typeLists.splice(typeLists.indexOf(index), 1);
+            data.set(type+'Lists', typeLists);
+            data.remove(listName+'_name');
+            data.remove(listName);
+        } else {
+            console.error(`List doesn't exist: ${listName}`);
+        }
     }
 
-    function spawnNewItem (listIndex, type) {
-        let item = createItem(type);
+    function spawnNewItem (type, listIndex) {
+        let item = createItem(type, listIndex);
         let listName = type+'List_'+listIndex;
         let list = data.get(listName);
         let index = getNewIndex(list);
@@ -469,17 +472,21 @@ const Data = (()=>{
         data.set(itemName, item);
     }
 
-    function removeItem (index, type) {
+    function removeItem (type, index) {
         let itemName = type+'Item_'+index;
-        let item = data.get(itemName);
-        let listName = type+'List_'+item.listIndex;
-        let list = data.get(listName);
-        list.splice(list.indexOf(index), 1);
-        data.set(listName, list);
-        let typeList = data.get(type+'Items');
-        typeList.splice(typeList.indexOf(index), 1);
-        data.set(type+'Items', typeList);
-        data.remove(itemName);
+        if (data.exists(itemName)) {
+            let item = data.get(itemName);
+            let listName = type+'List_'+item.listIndex;
+            let list = data.get(listName);
+            list.splice(list.indexOf(index), 1);
+            data.set(listName, list);
+            let typeList = data.get(type+'Items');
+            typeList.splice(typeList.indexOf(index), 1);
+            data.set(type+'Items', typeList);
+            data.remove(itemName);
+        } else {
+            console.error(`Item doesn't exist: ${itemName}`);
+        }
     }
 
     function getNewIndex (arrayOfIndexes) {
@@ -491,7 +498,7 @@ const Data = (()=>{
         }
     }
     
-    function createItem (type) {
+    function createItem (type, listIndex) {
         let result = {
             type,
             listIndex,
@@ -507,14 +514,27 @@ const Data = (()=>{
         return result;
     }
 
-    function getList (index, type) {
+    function getList (type, index) {
         let id = type+'List_'+index;
-        let name = data.get(id+'_name');
-        let allList = 'All '+type[0].toUpperCase()+type.slice(1)+'s';
-        if (name === allList) {
-            return data.get(type+'Items');
+        if (data.exists(id)) {
+            let name = data.get(id+'_name');
+            let allList = 'All '+type[0].toUpperCase()+type.slice(1)+'s';
+            if (name === allList) {
+                return data.get(type+'Items');
+            } else {
+                return data.get(id);
+            }
         } else {
-            return data.get(id);
+            console.error(`List doesn't exist: ${id}`);
+        }
+    }
+
+    function getItem (type, index) {
+        let itemName = type+'Item_'+index;
+        if (data.exists(itemName)) {
+            return data.get(itemName);
+        } else {
+            console.error(`Item doesn't exist: ${itemName}`);
         }
     }
 
@@ -535,70 +555,140 @@ const Data = (()=>{
     function loadAnew () {
         localStorage.clear();
         data.set('TOP_Project_ToDoList_StorageExists', true);
-        listNames.forEach(name => data.set(name, []));
-        spawnNewList('All Tasks', 'task');
-        spawnNewList('All Notes', 'note');
+        defaultListNames.forEach(name => data.set(name, []));
+        spawnNewList('task', 'All Tasks');
+        spawnNewList('note', 'All Notes');
     }
 
     function verifyData () {
         Engine.setLoadingStatus(Data, 'verifyingData', true);
+        console.groupCollapsed("verifyData()");
         let result = true;
-        let listsExist = listNames.reduce((final, current) => {
+        let defaultListsExist = defaultListNames.reduce((final, current) => {
             if (data.exists(current) === false) {
+                console.warn("the following defaultList doesn't exist:", current);
                 final = false;
             }
             return final;
         }, true);
-        if (listsExist) {
-            let subListsAndItemsExist = listNames.reduce((final, currentListName) => {
+        if (defaultListsExist) {
+            console.groupCollapsed("verifying sublists and items");
+            let subListsAndItemsExist = ['taskLists', 'noteLists'].reduce((final, currentListName) => {
                 data.get(currentListName).forEach(subListIndex => {
                     let subListName = currentListName.slice(0, currentListName.length-1)+'_'+subListIndex;
+                    console.group("checking sublist:", subListName);
                     if (!Number.isInteger(subListIndex)) {
+                        console.warn("The sublist index is not an integer:", subListIndex);
                         final = false;
                     } else if (data.exists(subListName) === false || data.exists(subListName+'_name') === false) {
+                        console.warn("The sublist doesn't exist or sublist_name doesn't exist");
+                        console.warn("Sublist exists?", data.exists(subListName));
+                        console.warn("Sublist_name exists?", data.exists(subListName+'_name'));
                         final = false;
                     } else if (data.get(subListName+'_name').trim() === '') {
+                        console.warn("subList_name is empty");
                         final = false;
                     } else {
+                        console.log("verifying the items of subList", subListName);
                         let itemsExist = data.get(subListName).reduce((itemTestFinal, currentItemIndex) => {
                             let itemName = subListName.slice(0, 4)+'Item_'+currentItemIndex;
+                            console.group("checking item:", itemName);
                             if (!Number.isInteger(currentItemIndex)) {
+                                console.warn("item index is not an integer:", currentItemIndex);
                                 itemTestFinal = false;
                             } else if (data.exists(itemName) === false) {
+                                console.warn("this item (", itemName,") doesn't exist");
                                 itemTestFinal = false;
                             } else {
                                 let item = data.get(itemName);
+                                console.log("verifying item's contents");
                                 if (!isOfType(item, "object")) {
+                                    console.warn("item isn't an object");
                                     itemTestFinal = false;
-                                } else if (item.type !== 'task' || item.type !== 'note') {
+                                } else if (item.type !== 'task' && item.type !== 'note') {
+                                    console.warn("item.type is invalid:", item.type);
                                     itemTestFinal = false;
                                 } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
+                                    console.warn("item's title or textBody is not a string");
+                                    console.warn("item's title:", item.title);
+                                    console.warn("item's textBody", item.textBody);
                                     itemTestFinal = false;
                                 } else if (item.type === 'task') {
+                                    console.log("item is a task, verifying properties unique to task items")
                                     if (typeof item.date !== 'string' || typeof item.checked !== 'boolean') {
+                                        console.warn("item.date is not a string or item.checked is not a boolean");
+                                        console.warn('typeof item.date:', typeof item.date);
+                                        console.warn("typeof item.checked:", typeof item.checked);
                                         itemTestFinal = false;
-                                    } else if (item.priority !== 'low' || item.priority !== 'normal' || item.priority !== 'high' || item.priority !== 'urgent') {
+                                    } else if (item.priority !== 'low' && item.priority !== 'normal' && item.priority !== 'high' && item.priority !== 'urgent') {
+                                        console.warn("item.priority contains an invalid value:", item.priority);
                                         itemTestFinal = false;
                                     }
                                 }
                             }
+                            console.groupEnd("checking item:", itemName);
                             return itemTestFinal;
                         }, true)
                         if (itemsExist === false) {
+                            console.warn("items verification failed for:", subListName);
                             final = false;
                         }
                     }
+                    console.groupEnd("checking sublist:", subListName);
                 })
                 return final;
             }, true);
+            console.groupEnd("verifying sublists and items");
             if (subListsAndItemsExist === false) {
+                console.warn("subLists(and/or their items') verification failed");
                 result = false;
             }
+            console.groupCollapsed("verifying items in taskItems and noteItems");
+            ['taskItems', 'noteItems'].forEach(metaItemListName => {
+                console.group('verifying items of:', metaItemListName);
+                let type = metaItemListName.slice(0, 4);
+                data.get(metaItemListName).forEach(itemIndex => {
+                    let itemName = type+'Item_'+itemIndex;
+                    console.log("verifying that", itemName, "exists in its list");
+                    if (!Number.isInteger(itemIndex)) {
+                        console.warn("itemIndex is not an integer:", itemIndex);
+                        result = false;
+                    } else if (data.exists(itemName) === false) {
+                        console.warn(itemName, "doesn't exist at all");
+                        result = false;
+                    } else {
+                        let itemListIndex = data.get(itemName).listIndex;
+                        let itemListName = type+'List_'+itemListIndex;
+                        if (!Number.isInteger(itemListIndex)) {
+                            console.warn("item's listIndex is not an integer:", itemListIndex);
+                            result = false;
+                        } else if (data.exists(itemListName) === false) {
+                            console.warn(itemListName, "doesn't exist");
+                            result = false;
+                        } else {
+                            let itemList = data.get(type+'List_'+itemListIndex);
+                            if (itemList.includes(itemIndex) === false) {
+                                console.warn("item doesn't exist in its list");
+                                result = false;
+                            }
+                        }
+                    }
+                })
+                console.groupEnd('verifying items of:', metaItemListName);
+            })
+            console.groupEnd("verifying items in taskItems and noteItems");
         } else {
+            console.warn("all/some/one of the default lists were/was not found");
             result = false;
         }
         if (result === true || result === false) {
             Engine.setLoadingStatus(Data, 'verifyingData', false);
+        }
+        console.groupEnd("verifyData()");
+        if (result) {
+            console.log("verifyData() --> result: PASSED");
+        } else {
+            console.warn("verifyData() --> result: FAILED");
         }
         return result;
     }
@@ -638,13 +728,13 @@ const Data = (()=>{
             getNewIndex,
             createItem,
             getList,
+            getItem,
             initiate,
             loadAnew,
             spawnNewItem,
             spawnNewList,
             removeItem,
             removeList,
-            data,
             logLocalStorage,
         }
     });
@@ -776,8 +866,7 @@ function compareMultipleItemsAsEqual () {
 };
 
 // on start
-// localStorage.clear();
-// localStorage.TOP_Project_ToDoList_StorageExists = true;
+
 Engine.initialise();
 [...document.querySelectorAll('.listView li')].forEach(item => {
     item.addEventListener('click', event => {
