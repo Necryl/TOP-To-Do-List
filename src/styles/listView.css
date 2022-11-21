@@ -99,14 +99,30 @@
     min-width: max-content;
 }
 
-.listView :is(.sort, .show) button {
+.listView :is(.sort, .show) input {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+.listView :is(.sort, .show) input::before {
     background-color: transparent;
     border: 1px solid white;
     padding: 3px 5px;
     border-radius: 5px;
 }
-.listView :is(.sort, .show) button:hover {
+
+.listView :is(#sortPriority, #showPriority)::before {
+    content: 'Priority';
+}
+.listView :is(#sortDate, #showDate)::before {
+    content: 'Date';
+}
+.listView :is(.sort, .show) input:hover::before {
     background-color: rgba(255, 255, 255, 0.096);
+}
+.listView :is(.sort, .show) input:checked::before {
+    background-color: white;
+    color: black;
 }
 
 .listView ul {
