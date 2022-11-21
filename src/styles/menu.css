@@ -98,7 +98,7 @@ body:not(body.triple) .menu-container.visible {
 }
 
 
-:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)) {
+:is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)) {
     font-size: 1rem;
     background-color: transparent;
     border: none;
@@ -109,18 +109,32 @@ body:not(body.triple) .menu-container.visible {
     outline: 1px solid transparent;
 }
 
-:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)):hover {
+:is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)):hover {
     outline-color: white;
 }
-:is(.menu .tasks-wrapper *:not(ul), .menu .notes-wrapper *:not(ul)).selected {
+:is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)).selected {
     outline: 2px solid rgba(0, 255, 255, 0.438);
 }
-.menu #newBtn {
+
+:is(.menu .tasks-wrapper, .menu .notes-wrapper) .newBtn {
     text-align: center;
     background-color: rgba(255, 255, 255, 0.082);
     border: 1px solid rgba(255, 255, 255, 0.185);
     font-size: 0.85em;
     padding-top: 5px;
     padding-bottom: 5px;
+    margin-top: 3px;
+}
+
+.newBtn-wrapper {
+    display: grid;
+}
+:is(.menu .tasks-wrapper, .menu .notes-wrapper) .newBtn-wrapper input {
+    display: none;
+    background-color: rgba(255, 255, 255, 0.082);
+    border: 2px solid rgba(255, 255, 255, 0.39);
+    font-size: 0.85em;
+    padding-top: 4px;
+    padding-bottom: 4px;
     margin-top: 3px;
 }

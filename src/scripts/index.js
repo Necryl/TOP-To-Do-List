@@ -25,12 +25,14 @@ const loadingContainerElement = document.querySelector('.loading-container');
 const toolTipsElement = document.querySelector('.toolTips');
 const alertViewElement = document.querySelector('.alertView');
 const alertMsgElement = document.querySelector('.alertView .alert-message');
-const alertBtnsContainer = document.querySelector('.alertView .alertBtns-container');;
+const alertBtnsContainerElement = document.querySelector('.alertView .alertBtns-container');;
 const alertTitleElement = document.querySelector('.alertView .alert-title');
 const allTasksMenuElement = document.querySelector('.menu #allTasks');
 const allNotesMenuElement = document.querySelector('.menu #allNotes');
 const taskListMenuElement = document.querySelector('.menu #tasks');
 const noteListMenuElement = document.querySelector('.menu #notes');
+const newBtnMenuInputElements = [...document.querySelectorAll('.menu .newBtn-wrapper input')];
+const newBtnMenuElements = [...document.querySelectorAll('.menu .newBtn-wrapper .newBtn')];
 
 
 // state variables
@@ -399,8 +401,8 @@ const UI = (() => {
         }
         alertMsgElement.textContent = message;
 
-        while(alertBtnsContainer.firstChild) {
-            alertBtnsContainer.removeChild(alertBtnsContainer.firstChild);
+        while(alertBtnsContainerElement.firstChild) {
+            alertBtnsContainerElement.removeChild(alertBtnsContainerElement.firstChild);
         }
         for (let i = 2; i < arguments.length; i++) {
             let btnElement = document.createElement('button');
@@ -409,7 +411,7 @@ const UI = (() => {
                 alertViewElement.style.display = 'none';
                 arguments[i][1]();
             });
-            alertBtnsContainer.appendChild(btnElement);
+            alertBtnsContainerElement.appendChild(btnElement);
         }
         alertViewElement.style.display = 'grid';
     }
@@ -835,7 +837,9 @@ const Engine =(()=>{
         }
     }
 
-    function newList () {}
+    function newList (type, name) {
+        console.log(type, name);
+    }
     
     return createModule({
         name: 'Engine',
@@ -874,6 +878,29 @@ menuContainerElement.addEventListener('click', (event) => {
 returnBtnElement.addEventListener('click', event => {
     currentView = listViewElement;
     UI.updateSingleView();
+})
+newBtnMenuElements.forEach((newBtn, index) => {
+    newBtn.addEventListener('click', event => {
+        newBtnMenuInputElements[index].style.display = 'initial';
+        event.target.style.display = 'none';
+        newBtnMenuInputElements[index].focus();
+    })
+})
+newBtnMenuInputElements.forEach((element, index) => {
+    element.addEventListener('blur', event => {
+        event.target.style.display = 'none';
+        newBtnMenuElements[index].style.display = 'initial';
+        if (event.target.value.trim() !== '') {
+            let type = index === 0 ? 'task':'note';
+            Engine.newList(type, event.target.value.trim());
+        }
+        event.target.value = '';
+    })
+    element.addEventListener('keypress', event => {
+        if (event.key === 'Enter') {
+            event.target.blur();
+        }
+    })
 })
 
 // tool functions

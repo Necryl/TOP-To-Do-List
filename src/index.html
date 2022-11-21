@@ -18,16 +18,22 @@
                 <ul id="tasks">
                     <li>Sample</li>
                 </ul>
-                <button id="newBtn">NEW</button>
+                <div class="newBtn-wrapper">
+                    <input type="text" class="newBtnInput" placeholder="Enter a name">
+                    <button class="newBtn">NEW</button>
+                </div>
             </div>
             <span class="seperator"></span>
-            <notes class="notes-wrapper">
+            <div class="notes-wrapper">
                 <button id="allNotes">All Notes</button>
                 <ul id="notes">
                     <li>Sample</li>
                 </ul>
-                <button id="newBtn">NEW</button>
-            </notes>
+                <div class="newBtn-wrapper">
+                    <input type="text" class="newBtnInput" placeholder="Enter a name">
+                    <button class="newBtn">NEW</button>
+                </div>
+            </div>
         </div>
     </div>
     <div class="listView">
@@ -37,7 +43,7 @@
         </div>
         <div class="listNameWrapper">
             <input type="text" id="listName" value="List Name">
-            <button id="newBtn">NEW</button>
+            <button class="newBtn">NEW</button>
         </div>
         <div class="options">
             <div class="sort">
@@ -55,7 +61,7 @@
             <li class="task">
                 <input type="checkbox">
                 <input type="text" value="Sample task">
-                <select id="priority">
+                <select class="priority">
                     <option value="low">Low</option>
                     <option value="normal" selected>Normal</option>
                     <option value="high">High</option>
@@ -66,7 +72,7 @@
             <li class="task">
                 <input type="checkbox">
                 <input type="text" value="Sample task 2">
-                <select id="priority">
+                <select class="priority">
                     <option value="low">Low</option>
                     <option value="normal" selected>Normal</option>
                     <option value="high">High</option>
@@ -97,7 +103,7 @@
         <span class="seperator"></span>
         <textarea class="description" style="resize: none;" placeholder="Description"></textarea>
         <div class="options">
-            <select id="priority">
+            <select>
                 <option value="low">Low</option>
                 <option value="normal" selected>Normal</option>
                 <option value="high">High</option>
