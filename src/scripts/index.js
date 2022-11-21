@@ -414,9 +414,29 @@ const UI = (() => {
         alertViewElement.style.display = 'grid';
     }
 
+    function setDataAttribute (element, key, value) {
+        element.setAttribute(`data-${key}`, value);
+    }
+
+    function getDataAttribute (element, key) {
+        return element.getAttribute(`data-${key}`);
+    }
+
     function createMenuListElement (type, index) {
         let name = Data.getListName(type, index);
+        let element = document.createElement('li');
+        element.textContent = name;
+        element.addEventListener('click', event => {
+            loadList(type, index);
+        });
+        if (type === 'task') {
+            taskListMenuElement.appendChild(element);
+        } else {
+            noteListMenuElement.appendChild(element);
+        }
     }
+
+    function loadList (type, index) {}
     
     function loadData () {}
 
@@ -894,5 +914,4 @@ Engine.initialise();
 // for testing
 // console.log('--------Testing--------');
 Data.logLocalStorage();
-console.log(Data.getListName('task', 0));
 // console.log('----------End of Testing---------')
