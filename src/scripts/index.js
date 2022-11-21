@@ -27,6 +27,10 @@ const alertViewElement = document.querySelector('.alertView');
 const alertMsgElement = document.querySelector('.alertView .alert-message');
 const alertBtnsContainer = document.querySelector('.alertView .alertBtns-container');;
 const alertTitleElement = document.querySelector('.alertView .alert-title');
+const allTasksMenuElement = document.querySelector('.menu #allTasks');
+const allNotesMenuElement = document.querySelector('.menu #allNotes');
+const taskListMenuElement = document.querySelector('.menu #tasks');
+const noteListMenuElement = document.querySelector('.menu #notes');
 
 
 // state variables
@@ -409,6 +413,10 @@ const UI = (() => {
         }
         alertViewElement.style.display = 'grid';
     }
+
+    function createMenuListElement (type, index) {
+        let name = Data.getListName(type, index);
+    }
     
     function loadData () {}
 
@@ -524,6 +532,15 @@ const Data = (()=>{
             } else {
                 return data.get(id);
             }
+        } else {
+            console.error(`List doesn't exist: ${id}`);
+        }
+    }
+    
+    function getListName (type, index) {
+        let id = type+'List_'+index;
+        if (data.exists(id)) {
+            return data.get(id+'_name');
         } else {
             console.error(`List doesn't exist: ${id}`);
         }
@@ -728,6 +745,7 @@ const Data = (()=>{
             getNewIndex,
             createItem,
             getList,
+            getListName,
             getItem,
             initiate,
             loadAnew,
@@ -876,4 +894,5 @@ Engine.initialise();
 // for testing
 // console.log('--------Testing--------');
 Data.logLocalStorage();
+console.log(Data.getListName('task', 0));
 // console.log('----------End of Testing---------')
