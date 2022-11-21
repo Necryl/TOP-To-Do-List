@@ -38,7 +38,7 @@ const newBtnMenuElements = [...document.querySelectorAll('.menu .newBtn-wrapper 
 // state variables
 let displayState; // possible states: triple, double, single
 let currentView = listViewElement;
-let currentList = 'All Tasks';
+let currentList = ['task', 0];
 let currentItem;
 let loadingStatus = {
     UI: false,
@@ -429,7 +429,7 @@ const UI = (() => {
         let element = document.createElement('li');
         element.textContent = name;
         element.addEventListener('click', event => {
-            loadList(type, index);
+            menuListClickEvent(event, type, index);
         });
         if (type === 'task') {
             taskListMenuElement.appendChild(element);
@@ -438,9 +438,21 @@ const UI = (() => {
         }
     }
 
-    function loadList (type, index) {}
+    function loadList (type, index) {
+        console.log(`loadList('${type}', ${index})`);
+    }
     
-    function loadData () {}
+    function loadData () {
+        let taskLists = Data.getList('taskLists');
+        let noteLists = Data.getList('noteLists');
+        [taskLists, noteLists].forEach((listOfLists, index) => {
+            let type = index === 0 ? 'task':'note';
+            listOfLists.forEach(listIndex => {
+                createMenuListElement(type, listIndex);
+            })
+        })
+        loadList(...currentList);
+    }
 
     return createModule({
         name: 'UI',
@@ -456,6 +468,8 @@ const UI = (() => {
             hideLoadingScreen,
             loadData,
             alert,
+            createMenuListElement,
+            loadList,
         }
     });
 })()
@@ -471,6 +485,7 @@ const Data = (()=>{
         let listName = type+'List_'+index;
         data.set(listName+'_name', name);
         data.set(listName, []);
+        return index;
     }
 
     function removeList (type, index) {
@@ -545,6 +560,16 @@ const Data = (()=>{
     }
 
     function getList (type, index) {
+        type = type.trim().toLowerCase();
+        let target = type;
+        if (type !== 'task' || type !== 'list') {
+            type = type.includes('task') ? 'task':'note';
+        }
+        if (target === 'tasklists' || target === 'notelists') {
+            return data.get(type+'Lists').slice(1);
+        } else if (target === 'all tasks' || target === 'all notes') {
+            index = 0;
+        }
         let id = type+'List_'+index;
         if (data.exists(id)) {
             let name = data.get(id+'_name');
@@ -838,7 +863,8 @@ const Engine =(()=>{
     }
 
     function newList (type, name) {
-        console.log(type, name);
+        let newListIndex = Data.spawnNewList(type, name);
+        UI.createMenuListElement(type, newListIndex);
     }
     
     return createModule({
@@ -902,6 +928,15 @@ newBtnMenuInputElements.forEach((element, index) => {
         }
     })
 })
+allTasksMenuElement.addEventListener('click', event => {
+    menuListClickEvent(event, 'task', 0);
+})
+allNotesMenuElement.addEventListener('click', event => {
+    menuListClickEvent(event, 'note', 0);
+})
+function menuListClickEvent (event, type, index) {
+    UI.loadList(type, index);
+}
 
 // tool functions
 function isOfType(subject, type=undefined) {
@@ -940,5 +975,5 @@ Engine.initialise();
 });
 // for testing
 // console.log('--------Testing--------');
-Data.logLocalStorage();
+// Data.logLocalStorage();
 // console.log('----------End of Testing---------')
