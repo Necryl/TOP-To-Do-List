@@ -293,3 +293,10 @@
     text-decoration: line-through;
     color: inherit;
 }
+
+.listView.hidePriority select {
+    display: none;
+}
+.listView.hideDate input[type='date'] {
+    display: none;
+}

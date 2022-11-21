@@ -33,6 +33,10 @@ const taskListMenuElement = document.querySelector('.menu #tasks');
 const noteListMenuElement = document.querySelector('.menu #notes');
 const newBtnMenuInputElements = [...document.querySelectorAll('.menu .newBtn-wrapper input')];
 const newBtnMenuElements = [...document.querySelectorAll('.menu .newBtn-wrapper .newBtn')];
+const sortPriorityElement = document.querySelector('#sortPriority');
+const showPriorityElement = document.querySelector('#showPriority');
+const sortDateElement = document.querySelector('#sortDate');
+const showDateElement = document.querySelector('#showDate');
 
 
 // state variables
@@ -937,6 +941,20 @@ allNotesMenuElement.addEventListener('click', event => {
 function menuListClickEvent (event, type, index) {
     UI.loadList(type, index);
 }
+showPriorityElement.addEventListener('click', event => {
+    if (event.target.checked === false) {
+        listViewElement.classList.add('hidePriority');
+    } else {
+        listViewElement.classList.remove('hidePriority');
+    }
+})
+showDateElement.addEventListener('click', event => {
+    if (event.target.checked === false) {
+        listViewElement.classList.add('hideDate');
+    } else {
+        listViewElement.classList.remove('hideDate');
+    }
+})
 
 // tool functions
 function isOfType(subject, type=undefined) {
@@ -966,7 +984,8 @@ function compareMultipleItemsAsEqual () {
 };
 
 // on start
-
+showPriorityElement.checked = true;
+showDateElement.checked = true;
 Engine.initialise();
 [...document.querySelectorAll('.listView li')].forEach(item => {
     item.addEventListener('click', event => {
