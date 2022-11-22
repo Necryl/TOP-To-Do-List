@@ -6,6 +6,7 @@ import contentViewStyles from "./../styles/contentView.css"
 import loadingStyles from "./../styles/loading.css"
 import tooltipStyles from "./../styles/tooltips.css"
 import alertViewStyles from "./../styles/alertView.css"
+import rightClickStyles from "./../styles/rightClickDropDown.css"
 
 // importing modules
 import _ from "lodash"
@@ -37,6 +38,7 @@ const sortPriorityElement = document.querySelector('#sortPriority');
 const showPriorityElement = document.querySelector('#showPriority');
 const sortDateElement = document.querySelector('#sortDate');
 const showDateElement = document.querySelector('#showDate');
+const rightClickDropdownElement = document.querySelector('.right-click-dropdown');
 
 
 // state variables
@@ -435,6 +437,11 @@ const UI = (() => {
         element.addEventListener('click', event => {
             menuListClickEvent(event, type, index);
         });
+        element.addEventListener('contextmenu', (event) => {
+            triggerRightClickMenu(event, {
+                "Delete this list": ()=>(Engine.deleteList(type, index, element)),
+            });
+        });
         if (type === 'task') {
             taskListMenuElement.appendChild(element);
         } else {
@@ -444,6 +451,34 @@ const UI = (() => {
 
     function loadList (type, index) {
         console.log(`loadList('${type}', ${index})`);
+    }
+
+    function triggerRightClickMenu (event, contentObject) {
+        event.preventDefault();
+        let content = Object.entries(contentObject);
+        while (rightClickDropdownElement.firstChild) {
+            rightClickDropdownElement.removeChild(rightClickDropdownElement.firstChild);
+        }
+        content.forEach(entry => {
+            let option = document.createElement('li');
+            option.textContent = entry[0];
+            option.addEventListener('click', ()=>{
+                entry[1]();
+                collapseEvent();
+            });
+            rightClickDropdownElement.appendChild(option);
+        })
+        rightClickDropdownElement.style.left = event.clientX+'px';
+        rightClickDropdownElement.style.top = event.clientY+'px';
+        rightClickDropdownElement.classList.remove('collapse');
+        let collapseEvent = event => {
+            rightClickDropdownElement.classList.add('collapse');
+            rightClickDropdownElement.removeEventListener('mouseleave', collapseEvent);
+        }
+        setTimeout(() => {
+            rightClickDropdownElement.addEventListener('mouseleave', collapseEvent)
+        }, 50);
+        
     }
     
     function loadData () {
@@ -870,6 +905,10 @@ const Engine =(()=>{
         let newListIndex = Data.spawnNewList(type, name);
         UI.createMenuListElement(type, newListIndex);
     }
+
+    function deleteList (task, index, menuElement) {
+        console.log(arguments);
+    }
     
     return createModule({
         name: 'Engine',
@@ -880,6 +919,7 @@ const Engine =(()=>{
             setLoadingStatus,
             newList,
             resetData,
+            deleteList,
         }
     });
 })()

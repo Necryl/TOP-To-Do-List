@@ -1,0 +1,63 @@
+.right-click-dropdown {
+    position: fixed;
+    z-index: 3;
+    display: grid;
+    background-color: rgb(49, 55, 77);
+    border: 1px solid rgba(255, 255, 255, 0.397);
+    border-radius: 7px;
+    font-size: 1rem;
+    overflow: visible;
+    list-style: none;
+    transform-origin: 0% 0%;
+    animation: menu-expand 200ms ease-out forwards;
+}
+@keyframes menu-expand {
+    0% {
+        scale: 50%;
+        opacity: 0%;
+    }
+    100% {
+        opacity: 100%;
+        scale: 100%;
+    }
+}
+.right-click-dropdown > * {
+    user-select: none;
+    padding: 0.5em 0.85em;
+}
+.right-click-dropdown > *:not(:first-child) {
+    border-top: 1px solid rgba(255, 255, 255, 0.151);
+}
+.right-click-dropdown > *:hover {
+    background-color: rgba(255, 255, 255, 0.062);
+}
+
+.right-click-dropdown > *:active {
+    background-color: rgba(80, 120, 146, 0.589);
+}
+
+.right-click-dropdown.collapse {
+    /* transition: 150ms scale ease-in-out; */
+    animation: menu-collapse 150ms ease-in forwards;
+}
+@keyframes menu-collapse {
+    100% {
+        scale: 50%;
+        opacity: 0%;
+        visibility: hidden;
+    }
+}
+
+.right-click-dropdown::before {
+    content: '';
+    position: absolute;
+    background-color: transparent;
+    --size: 20px;
+    width: var(--size);
+    height: var(--size);
+    top: -10px;
+    left: -10px;
+    border-radius: 10px 10px 0px 0px;
+    transform: rotateZ(-45deg);
+
+}

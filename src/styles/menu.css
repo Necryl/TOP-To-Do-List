@@ -138,3 +138,7 @@ body:not(body.triple) .menu-container.visible {
     padding-bottom: 4px;
     margin-top: 3px;
 }
+
+.menu :is(#tasks, #notes) li {
+    user-select: none;
+}
