@@ -14,31 +14,43 @@ import _ from "lodash"
 // elements
 const rootElement = document.querySelector(':root');
 const bodyElement = document.querySelector('body');
+
 const closeMenuBtnElement = document.querySelector('#close-menu');
 const openMenuBtnElement = document.querySelector('#open-menu');
 const returnBtnElement = document.querySelector('#return');
+
 const menuContainerElement = document.querySelector('.menu-container');
 const menuElement = document.querySelector('.menu');
 const listViewElement = document.querySelector('.listView');
 const contentViewElement = document.querySelector('.contentView');
-const listViewOptionsElement = document.querySelector('.listView .options');
+
 const loadingContainerElement = document.querySelector('.loading-container');
 const toolTipsElement = document.querySelector('.toolTips');
+
 const alertViewElement = document.querySelector('.alertView');
 const alertMsgElement = document.querySelector('.alertView .alert-message');
 const alertBtnsContainerElement = document.querySelector('.alertView .alertBtns-container');;
 const alertTitleElement = document.querySelector('.alertView .alert-title');
+
+const rightClickDropdownElement = document.querySelector('.right-click-dropdown');
+
 const allTasksMenuElement = document.querySelector('.menu #allTasks');
 const allNotesMenuElement = document.querySelector('.menu #allNotes');
 const taskListMenuElement = document.querySelector('.menu #tasks');
 const noteListMenuElement = document.querySelector('.menu #notes');
 const newBtnMenuInputElements = [...document.querySelectorAll('.menu .newBtn-wrapper input')];
 const newBtnMenuElements = [...document.querySelectorAll('.menu .newBtn-wrapper .newBtn')];
+
+const listNameInListViewElement = document.querySelector('.listView #listName');
+const newBtnListViewElement = document.querySelector('.listView .listNameWrapper .newBtn');
+const listViewOptionsElement = document.querySelector('.listView .options');
 const sortPriorityElement = document.querySelector('#sortPriority');
 const showPriorityElement = document.querySelector('#showPriority');
 const sortDateElement = document.querySelector('#sortDate');
 const showDateElement = document.querySelector('#showDate');
-const rightClickDropdownElement = document.querySelector('.right-click-dropdown');
+const listViewOptionElements = [sortPriorityElement, sortDateElement, showPriorityElement, showDateElement];
+const listItemsULElement = document.querySelector('.listView .listItems');
+const completedItemsULElement = document.querySelector('.listView .completedItems');
 
 
 // state variables
@@ -449,8 +461,70 @@ const UI = (() => {
         }
     }
 
+    function createListItemElement (type, index) {
+        let itemData = Data.getItem(type, index);
+        let element = document.createElement('li');
+        element.classList.add(type);
+        if (type === 'task') {
+            let toggleElem = document.createElement('input');
+            toggleElem.setAttribute('type', 'checkbox');
+            toggleElem.toggleAttribute('checked', itemData.checked);
+            element.appendChild(toggleElem);
+        }
+        let textElem = document.createElement('input');
+        textElem.setAttribute('type', 'text');
+        textElem.setAttribute('value', itemData.title);
+        element.appendChild(textElem);
+        if (type === 'task') {
+            let priorityElem = document.createElement('select');
+            priorityElem.classList.add('priority');
+            ['low', 'normal', 'high', 'urgent'].forEach(option => {
+                let elem = document.createElement('option');
+                elem.setAttribute('value', option);
+                elem.textContent = option[0].toUpperCase() + option.slice(1);
+                if (option === itemData.priority) {
+                    elem.toggleAttribute('selected', true);
+                }
+                priorityElem.appendChild(elem);
+            });
+            element.appendChild(priorityElem);
+            let dateElem = document.createElement('input');
+            dateElem.setAttribute('type', 'date');
+            dateElem.value = itemData.date;
+            element.appendChild(dateElem);
+        }
+        setDataAttribute(element, 'index', index);
+        if (itemData.checked === true) {
+            completedItemsULElement.appendChild(element);
+        } else {
+            listItemsULElement.appendChild(element);
+        }
+    }
+
     function loadList (type, index) {
-        console.log(`loadList('${type}', ${index})`);
+        currentList = [type, index];
+        if (index === 0) {
+            newBtnListViewElement.style.display = 'none';
+        } else {
+            newBtnListViewElement.style.display = 'initial';
+        }
+        let list = Data.getList(type, index);
+        listNameInListViewElement.value = Data.getListName(type, index);
+        [listItemsULElement, completedItemsULElement].forEach(element => {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        });
+        Data.getListOptions(type, index).forEach((value, index) => {
+            listViewOptionElements[index].checked = value;
+        });
+        list.forEach(itemIndex => {
+            createListItemElement(type, itemIndex);
+        });
+    }
+
+    function loadItem (type, index) {
+        console.log(`loadItem('${type}', ${index})`);
     }
 
     function triggerRightClickMenu (event, contentObject) {
@@ -493,6 +567,13 @@ const UI = (() => {
         loadList(...currentList);
     }
 
+    function getListViewOptionsData () {
+        return listViewOptionElements.reduce((final, current) => {
+            final.push(current.checked);
+            return final;
+        }, [])
+    }
+
     return createModule({
         name: 'UI',
         processes: ['updatingDisplay', 'loadingTooltips'],
@@ -509,13 +590,28 @@ const UI = (() => {
             alert,
             createMenuListElement,
             loadList,
+            getListViewOptionsData,
         }
     });
 })()
 
 const Data = (()=>{    
     const defaultListNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems', 'taskList_0', 'noteList_0'];
-        
+    
+    // localStorageExample = {
+    //     TOP_Project_ToDoList_StorageExists: true,
+    //     taskLists: [1, 3, 4, 5, 6],
+    //     noteLists: [1, 2, 3, 4, 7, 8],
+    //     taskItems: [1, 2, 3, 4, 5, 6, 12, 8],
+    //     noteItems: [1, 2, 3, 5],
+    //     taskList_1_name: "Daily",
+    //     taskList_1: [4, 5, 6, 12, 8],
+    //     taskList_3_name: "Daily",
+    //     taskList_3: [1, 2, 3],
+    //     taskItem_1: {checked, title, textbody, priority, date},
+    //     noteItem_1: {title, textBody}
+    // }
+
     function spawnNewList (type, name) {
         let typeLists = data.get(type+'Lists');
         let index = getNewIndex(typeLists);
@@ -523,6 +619,7 @@ const Data = (()=>{
         data.set(type+'Lists', typeLists);
         let listName = type+'List_'+index;
         data.set(listName+'_name', name);
+        data.set(listName+'_options', [false, false, true, true]);
         data.set(listName, []);
         return index;
     }
@@ -641,26 +738,18 @@ const Data = (()=>{
         }
     }
 
-    // localStorageExample = {
-    //     TOP_Project_ToDoList_StorageExists: true,
-    //     taskLists: [1, 3, 4, 5, 6],
-    //     noteLists: [1, 2, 3, 4, 7, 8],
-    //     taskItems: [1, 2, 3, 4, 5, 6, 12, 8],
-    //     noteItems: [1, 2, 3, 5],
-    //     taskList_1_name: "Daily",
-    //     taskList_1: [4, 5, 6, 12, 8],
-    //     taskList_3_name: "Daily",
-    //     taskList_3: [1, 2, 3],
-    //     taskItem_1: {checked, title, textbody, priority, date},
-    //     noteItem_1: {title, textBody}
-    // }
-
     function loadAnew () {
         localStorage.clear();
         data.set('TOP_Project_ToDoList_StorageExists', true);
         defaultListNames.forEach(name => data.set(name, []));
         spawnNewList('task', 'All Tasks');
         spawnNewList('note', 'All Notes');
+    }
+
+    function updateListViewOptions () {
+        let optionsArray = UI.getListViewOptionsData();
+        let id = currentList[0]+'List_'+currentList[1]+'_options';
+        data.set(id, optionsArray);
     }
 
     function verifyData () {
@@ -691,49 +780,67 @@ const Data = (()=>{
                     } else if (data.get(subListName+'_name').trim() === '') {
                         console.warn("subList_name is empty");
                         final = false;
+                    }else if (data.exists(subListName+'_options') === false) {
+                        console.warn("subList_options doesn't exist");
+                        final = false;
+                    } else if (!Array.isArray(data.get(subListName+'_options'))) {
+                        console.warn("subList_options is invalid. Not an Array")
+                        final = false;
                     } else {
-                        console.log("verifying the items of subList", subListName);
-                        let itemsExist = data.get(subListName).reduce((itemTestFinal, currentItemIndex) => {
-                            let itemName = subListName.slice(0, 4)+'Item_'+currentItemIndex;
-                            console.group("checking item:", itemName);
-                            if (!Number.isInteger(currentItemIndex)) {
-                                console.warn("item index is not an integer:", currentItemIndex);
-                                itemTestFinal = false;
-                            } else if (data.exists(itemName) === false) {
-                                console.warn("this item (", itemName,") doesn't exist");
-                                itemTestFinal = false;
-                            } else {
-                                let item = data.get(itemName);
-                                console.log("verifying item's contents");
-                                if (!isOfType(item, "object")) {
-                                    console.warn("item isn't an object");
+                        let optionsValuesValid = data.get(subListName+'_options').reduce((verdict, value, valueIndex) => {
+                            if (typeof value !== 'boolean') {
+                                console.warn(`subList_options array contains an item with invalid value. Not a boolean. Item index is: ${valueIndex}`);
+                                verdict = false;
+                            }
+                            return final;
+                        }, true);
+                        if (optionsValuesValid) {
+                            console.log("verifying the items of subList", subListName);
+                            let itemsExist = data.get(subListName).reduce((itemTestFinal, currentItemIndex) => {
+                                let itemName = subListName.slice(0, 4)+'Item_'+currentItemIndex;
+                                console.group("checking item:", itemName);
+                                if (!Number.isInteger(currentItemIndex)) {
+                                    console.warn("item index is not an integer:", currentItemIndex);
                                     itemTestFinal = false;
-                                } else if (item.type !== 'task' && item.type !== 'note') {
-                                    console.warn("item.type is invalid:", item.type);
+                                } else if (data.exists(itemName) === false) {
+                                    console.warn("this item (", itemName,") doesn't exist");
                                     itemTestFinal = false;
-                                } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
-                                    console.warn("item's title or textBody is not a string");
-                                    console.warn("item's title:", item.title);
-                                    console.warn("item's textBody", item.textBody);
-                                    itemTestFinal = false;
-                                } else if (item.type === 'task') {
-                                    console.log("item is a task, verifying properties unique to task items")
-                                    if (typeof item.date !== 'string' || typeof item.checked !== 'boolean') {
-                                        console.warn("item.date is not a string or item.checked is not a boolean");
-                                        console.warn('typeof item.date:', typeof item.date);
-                                        console.warn("typeof item.checked:", typeof item.checked);
+                                } else {
+                                    let item = data.get(itemName);
+                                    console.log("verifying item's contents");
+                                    if (!isOfType(item, "object")) {
+                                        console.warn("item isn't an object");
                                         itemTestFinal = false;
-                                    } else if (item.priority !== 'low' && item.priority !== 'normal' && item.priority !== 'high' && item.priority !== 'urgent') {
-                                        console.warn("item.priority contains an invalid value:", item.priority);
+                                    } else if (item.type !== 'task' && item.type !== 'note') {
+                                        console.warn("item.type is invalid:", item.type);
                                         itemTestFinal = false;
+                                    } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
+                                        console.warn("item's title or textBody is not a string");
+                                        console.warn("item's title:", item.title);
+                                        console.warn("item's textBody", item.textBody);
+                                        itemTestFinal = false;
+                                    } else if (item.type === 'task') {
+                                        console.log("item is a task, verifying properties unique to task items")
+                                        if (typeof item.date !== 'string' || typeof item.checked !== 'boolean') {
+                                            console.warn("item.date is not a string or item.checked is not a boolean");
+                                            console.warn('typeof item.date:', typeof item.date);
+                                            console.warn("typeof item.checked:", typeof item.checked);
+                                            itemTestFinal = false;
+                                        } else if (item.priority !== 'low' && item.priority !== 'normal' && item.priority !== 'high' && item.priority !== 'urgent') {
+                                            console.warn("item.priority contains an invalid value:", item.priority);
+                                            itemTestFinal = false;
+                                        }
                                     }
                                 }
+                                console.groupEnd("checking item:", itemName);
+                                return itemTestFinal;
+                            }, true)
+                            if (itemsExist === false) {
+                                console.warn("items verification failed for:", subListName);
+                                final = false;
                             }
-                            console.groupEnd("checking item:", itemName);
-                            return itemTestFinal;
-                        }, true)
-                        if (itemsExist === false) {
-                            console.warn("items verification failed for:", subListName);
+                        } else {
+                            console.warn(`sublist_options array's item verification failed`);
                             final = false;
                         }
                     }
@@ -824,6 +931,15 @@ const Data = (()=>{
         console.table(_.sortBy(Object.entries(localStorage)));
     }
 
+    function getListOptions (type, index) {
+        let id = type+'List_'+index+'_options';
+        if (data.exists(id)) {
+            return data.get(id);
+        } else {
+            console.warn(`Data entry doesn't exist: ${id}`);
+        }
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -840,6 +956,8 @@ const Data = (()=>{
             removeItem,
             removeList,
             logLocalStorage,
+            updateListViewOptions,
+            getListOptions,
         }
     });
 })();
@@ -907,7 +1025,12 @@ const Engine =(()=>{
     }
 
     function deleteList (task, index, menuElement) {
-        console.log(arguments);
+        menuElement.remove();
+        Data.removeList(task, index);
+        if (_.isEqual(currentList, [task, index])) {
+            currentList = ['task', '0'];
+            UI.loadList(...currentList);
+        }
     }
     
     return createModule({
@@ -995,6 +1118,11 @@ showDateElement.addEventListener('click', event => {
         listViewElement.classList.remove('hideDate');
     }
 })
+listViewOptionElements.forEach(element => {
+    element.addEventListener('input', event => {
+        Data.updateListViewOptions();
+    });
+})
 
 // tool functions
 function isOfType(subject, type=undefined) {
@@ -1024,8 +1152,6 @@ function compareMultipleItemsAsEqual () {
 };
 
 // on start
-showPriorityElement.checked = true;
-showDateElement.checked = true;
 Engine.initialise();
 [...document.querySelectorAll('.listView li')].forEach(item => {
     item.addEventListener('click', event => {
@@ -1034,5 +1160,5 @@ Engine.initialise();
 });
 // for testing
 // console.log('--------Testing--------');
-// Data.logLocalStorage();
+Data.logLocalStorage();
 // console.log('----------End of Testing---------')
