@@ -51,7 +51,8 @@ const showDateElement = document.querySelector('#showDate');
 const listViewOptionElements = [sortPriorityElement, sortDateElement, showPriorityElement, showDateElement];
 const listItemsULElement = document.querySelector('.listView .listItems');
 const completedItemsULElement = document.querySelector('.listView .completedItems');
-
+const completedTitleWrapperElement = document.querySelector('.listView .completedTitle-wrapper');
+const completedTitleElement = document.querySelector('.listView #completedTitle');
 
 // state variables
 let displayState; // possible states: triple, double, single
@@ -469,16 +470,47 @@ const UI = (() => {
             let toggleElem = document.createElement('input');
             toggleElem.setAttribute('type', 'checkbox');
             toggleElem.toggleAttribute('checked', itemData.checked);
+            if (itemData.checked) {
+                element.classList.add('checked');
+            }
+            toggleElem.addEventListener('click', event => {
+                event.stopPropagation();
+            });
+            toggleElem.addEventListener('input', event => {
+                Data.updateItem(type, index, {checked: event.target.checked});
+                if (event.target.checked) {
+                    element.classList.add('checked');
+                } else {
+                    element.classList.remove('checked');
+                }
+            });
+            element.addEventListener('animationend', event => {
+                if (element.classList.contains('checked') && element.parentElement.classList.contains('listItems')) {
+                    completedItemsULElement.appendChild(element);
+                } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
+                    listItemsULElement.appendChild(element);
+                }
+            })
             element.appendChild(toggleElem);
         }
         let textElem = document.createElement('input');
         textElem.setAttribute('type', 'text');
         textElem.setAttribute('value', itemData.title);
+        textElem.addEventListener('input', event => {
+            Data.updateItem(type, index, {title: event.target.value});
+        });
+        textElem.addEventListener('keydown', event => {
+            console.log('triggered');
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.target.blur();
+            }
+        });
         element.appendChild(textElem);
         if (type === 'task') {
             let priorityElem = document.createElement('select');
             priorityElem.classList.add('priority');
-            ['low', 'normal', 'high', 'urgent'].forEach(option => {
+            let priorityOptions = ['low', 'normal', 'high', 'urgent'];
+            priorityOptions.forEach(option => {
                 let elem = document.createElement('option');
                 elem.setAttribute('value', option);
                 elem.textContent = option[0].toUpperCase() + option.slice(1);
@@ -487,18 +519,44 @@ const UI = (() => {
                 }
                 priorityElem.appendChild(elem);
             });
+            element.classList.add(itemData.priority);
+            priorityElem.addEventListener('input', event => {
+                Data.updateItem(type, index, {priority: priorityElem.value});
+                priorityOptions.forEach(option => {
+                    element.classList.remove(option);
+                });
+                element.classList.add(priorityElem.value);
+            });
             element.appendChild(priorityElem);
             let dateElem = document.createElement('input');
             dateElem.setAttribute('type', 'date');
-            dateElem.value = itemData.date;
+            dateElem.value = itemData.date === 'No due date' ? '':itemData.date;
+            if (dateElem.value === '') {
+                dateElem.classList.add('noDate');
+            }
+            dateElem.addEventListener('input', event => {
+                let value = dateElem.value;
+                if (value === '') {
+                    value = "No due date";
+                    dateElem.classList.add('noDate');
+                } else {
+                    dateElem.classList.remove('noDate');
+                }
+                Data.updateItem(type, index, {date: value});
+            });
             element.appendChild(dateElem);
         }
         setDataAttribute(element, 'index', index);
+        element.addEventListener('click', event => {
+            loadItem(type, index);
+            switchToContentView();
+        });
         if (itemData.checked === true) {
             completedItemsULElement.appendChild(element);
         } else {
             listItemsULElement.appendChild(element);
         }
+        return textElem;
     }
 
     function loadList (type, index) {
@@ -507,6 +565,15 @@ const UI = (() => {
             newBtnListViewElement.style.display = 'none';
         } else {
             newBtnListViewElement.style.display = 'initial';
+        }
+        if (type === 'note') {
+            listViewOptionsElement.style.display = 'none';
+            completedTitleWrapperElement.style.display = 'none';
+            completedItemsULElement.style.display = 'none';
+        } else {
+            listViewOptionsElement.style.display = 'grid';
+            completedTitleWrapperElement.style.display = 'grid';
+            completedItemsULElement.style.display = 'grid';
         }
         let list = Data.getList(type, index);
         listNameInListViewElement.value = Data.getListName(type, index);
@@ -517,6 +584,8 @@ const UI = (() => {
         });
         Data.getListOptions(type, index).forEach((value, index) => {
             listViewOptionElements[index].checked = value;
+            let evt = new Event('input');
+            listViewOptionElements[index].dispatchEvent(evt);
         });
         list.forEach(itemIndex => {
             createListItemElement(type, itemIndex);
@@ -524,6 +593,7 @@ const UI = (() => {
     }
 
     function loadItem (type, index) {
+        currentItem = [type, index];
         console.log(`loadItem('${type}', ${index})`);
     }
 
@@ -591,6 +661,7 @@ const UI = (() => {
             createMenuListElement,
             loadList,
             getListViewOptionsData,
+            createListItemElement,
         }
     });
 })()
@@ -651,6 +722,7 @@ const Data = (()=>{
         data.set(type+'Items', typeList);
         let itemName = type+'Item_'+index;
         data.set(itemName, item);
+        return index;
     }
 
     function removeItem (type, index) {
@@ -940,6 +1012,15 @@ const Data = (()=>{
         }
     }
 
+    function updateItem (type, index, entries) {
+        entries = Object.entries(entries);
+        let itemData = data.get(type+'Item_'+index);
+        entries.forEach(entry => {
+            itemData[entry[0]] = entry[1];
+        });
+        data.set(type+'Item_'+index, itemData)
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -958,6 +1039,7 @@ const Data = (()=>{
             logLocalStorage,
             updateListViewOptions,
             getListOptions,
+            updateItem
         }
     });
 })();
@@ -1032,6 +1114,12 @@ const Engine =(()=>{
             UI.loadList(...currentList);
         }
     }
+
+    function newItem () {
+        let type = currentList[0];
+        let itemIndex = Data.spawnNewItem(type, currentList[1]);
+        UI.createListItemElement(type, itemIndex).focus();
+    }
     
     return createModule({
         name: 'Engine',
@@ -1043,6 +1131,7 @@ const Engine =(()=>{
             newList,
             resetData,
             deleteList,
+            newItem,
         }
     });
 })()
@@ -1103,15 +1192,16 @@ allNotesMenuElement.addEventListener('click', event => {
 })
 function menuListClickEvent (event, type, index) {
     UI.loadList(type, index);
+    closeMenuBtnElement.click();
 }
-showPriorityElement.addEventListener('click', event => {
+showPriorityElement.addEventListener('input', event => {
     if (event.target.checked === false) {
         listViewElement.classList.add('hidePriority');
     } else {
         listViewElement.classList.remove('hidePriority');
     }
 })
-showDateElement.addEventListener('click', event => {
+showDateElement.addEventListener('input', event => {
     if (event.target.checked === false) {
         listViewElement.classList.add('hideDate');
     } else {
@@ -1122,6 +1212,16 @@ listViewOptionElements.forEach(element => {
     element.addEventListener('input', event => {
         Data.updateListViewOptions();
     });
+})
+newBtnListViewElement.addEventListener('click', event => {
+    Engine.newItem();
+});
+completedTitleElement.addEventListener('click', event => {
+    if (completedItemsULElement.classList.contains('collapse')) {
+        completedItemsULElement.classList.remove('collapse');
+    } else {
+        completedItemsULElement.classList.add('collapse');
+    }
 })
 
 // tool functions
@@ -1149,15 +1249,10 @@ function compareMultipleItemsAsEqual () {
         }
     }
     return verdict;
-};
+}
 
 // on start
 Engine.initialise();
-[...document.querySelectorAll('.listView li')].forEach(item => {
-    item.addEventListener('click', event => {
-        UI.switchToContentView();
-    })
-});
 // for testing
 // console.log('--------Testing--------');
 Data.logLocalStorage();

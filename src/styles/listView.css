@@ -143,6 +143,9 @@
     transition: 250ms;
     background-color: rgba(129, 205, 255, 0.123);
 }
+.listView ul li.note {
+    grid-template-columns: 1fr;
+}
 
 .listView.single ul li *:not(input[type='checkbox']) {
     pointer-events: none;
@@ -205,6 +208,7 @@
     padding: 5px 0px;
     width: 100%;
     min-width: 5ch;
+    text-overflow: ellipsis;
 }
 
 .listView ul li select {
@@ -216,7 +220,61 @@
 }
 
 .listView ul li input[type='date'] {
-    min-width: 13ch;
+    font-family: inherit;
+    text-align: end;
+    width: 14ch;
+    position: relative;
+}
+.listView ul li input[type='date'].noDate:not(:hover) {
+    animation: fadeOut 100ms ease-out forwards;
+    visibility: hidden;
+}
+
+.listView ul li input[type='date'].noDate:hover {
+    visibility: visible;
+    animation: fadeIn 100ms ease-out forwards;
+}
+
+.listView ul li input[type='date'].noDate:not(:hover)::before {
+    content: 'No due date';
+    position: absolute;
+    right: 0%;
+    animation: fadeIn 100ms ease-out forwards;
+    visibility: visible;
+    color: white;
+}
+
+.listView ul li input[type='date'].noDate:hover::before {
+    animation: fadeOut 100ms ease-out forwards;
+    visibility: hidden;
+    color: transparent;
+}
+
+@keyframes fadeIn {
+    0% {
+        color: rgba(255, 255, 255, 0);
+        visibility: visible;
+    }
+    99% {
+        color: white;
+    }
+    100% {
+        color: white;
+    }
+}
+@keyframes fadeOut {
+    0% {
+        visibility: visible;
+        color: white;
+    }
+    99% {
+        visibility: visible;
+        color: rgba(255, 255, 255, 0);
+    }
+    100% {
+        visibility: hidden;
+        color: rgba(255, 255, 255, 0);
+    }
 }
 
 .completedTitle-wrapper {
@@ -299,4 +357,88 @@
 }
 .listView.hideDate input[type='date'] {
     display: none;
+}
+
+.listView .listItems .task:not(.task.checked) {
+    animation: welcome-to-unchecked 200ms ease-out;
+    animation-iteration-count: 1;
+}
+@keyframes welcome-to-unchecked {
+    0% {
+        max-height: 0em;
+        opacity: 0%;
+    }
+    50% {
+        max-height: 4em;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+.listView .listItems .task.checked {
+    animation: move-to-completed 200ms;
+}
+@keyframes move-to-completed {
+    50% {
+        max-height: 4em;
+    }
+    100% {
+        opacity: 0%;
+        max-height: 0em;
+    }
+}
+
+.listView .completedItems .task.checked {
+    animation: welcome-to-checked 200ms ease-out;
+}
+@keyframes welcome-to-checked {
+    0% {
+        opacity: 0%;
+        max-height: 0em;
+    }
+    50% {
+        max-height: 4em;
+    }
+    100% {
+        opacity: 100%;
+    }
+}
+
+.listView .completedItems .task:not(.task.checked) {
+    animation: move-to-unchecked 200ms;
+}
+@keyframes move-to-unchecked {
+    50% {
+        max-height: 4em;
+    }
+    100% {
+        opacity: 0%;
+        max-height: 0em;
+    }
+}
+
+.listView .completedItems.collapse {
+    animation: completed-collapse 300ms ease-out forwards;
+}
+@keyframes completed-collapse {
+    100% {
+        transform: translateY(-3rem);
+        visibility: hidden;
+        opacity: 0%;
+    }
+}
+.listView .completedItems:not(.collapse) {
+    animation: completed-expand 300ms ease-out forwards;
+}
+@keyframes completed-expand {
+    0% {
+        transform: translateY(-3rem);
+        visibility: hidden;
+        opacity: 0%;
+    }
+    100% {
+        transform: translateY(0rem);
+        opacity: 100%;
+    }
 }
