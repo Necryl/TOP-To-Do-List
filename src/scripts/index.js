@@ -1277,8 +1277,10 @@ newBtnListViewElement.addEventListener('click', event => {
 completedTitleElement.addEventListener('click', event => {
     if (completedItemsULElement.classList.contains('collapse')) {
         completedItemsULElement.classList.remove('collapse');
+        completedTitleElement.classList.remove('collapse');
     } else {
         completedItemsULElement.classList.add('collapse');
+        completedTitleElement.classList.add('collapse');
     }
 })
 

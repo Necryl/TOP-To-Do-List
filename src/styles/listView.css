@@ -284,12 +284,15 @@
     position: relative;
 
     display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: "TITLE";
     align-items: center;
 
     overflow: visible;
 }
 
 #completedTitle {
+    grid-area: TITLE;
     width: 100%;
     padding: 7px 0px;
     border-radius: 6px;
@@ -300,9 +303,14 @@
     color: var(--col);
     border: none;
     transition: 300ms;
-
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "TITLE SYMBOL"
+                         "BAR BAR";
+    gap: 0ch 1ch;
 }
-#completedTitle::after {
+#completedTitle::before {
+    grid-area: BAR;
     display: block;
     margin-top: 3px;
     content: '';
@@ -312,15 +320,22 @@
     transition: 500ms;
     width: 0%;
 }
+#completedTitle::after {
+    grid-area: SYMBOL;
+    content: 'v';
+}
 #completedTitle:hover {
     --col: rgb(118, 179, 248);
 }
 #completedTitle:active {
     --col: rgb(153, 226, 226);
 }
-#completedTitle:hover::after {
+#completedTitle:hover::before {
     width: 100%;
     background-color: var(--col);
+}
+#completedTitle.collapse::after {
+    content: '>';
 }
 
 .listView .completedTitle-wrapper #removeCompleted {
