@@ -146,6 +146,9 @@
 .listView ul li.note {
     grid-template-columns: 1fr;
 }
+.listView ul li.selected {
+    border-color: rgba(255, 255, 255, 0.623);
+}
 
 .listView.single ul li *:not(input[type='checkbox']) {
     pointer-events: none;
