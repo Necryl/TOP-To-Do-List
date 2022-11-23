@@ -607,11 +607,9 @@ const UI = (() => {
             listViewOptionElements[index].dispatchEvent(evt);
         });
         list.forEach((itemIndex, i) => {
-            if (i === 0) {
-                loadItem(type, itemIndex);
-            }
             createListItemElement(type, itemIndex);
         });
+        loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
     }
 
     function loadItem (type, index) {
