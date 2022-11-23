@@ -491,15 +491,20 @@ const UI = (() => {
                     completedItemsULElement.appendChild(element);
                 } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
                     let itemElements = [...listItemsULElement.children]
-                    for (let i = 0; i < itemElements.length; i++) {
-                        let currentPosition = Data.getItem(type, getDataAttribute(itemElements[i], 'index')).position;
-                        if (currentPosition > itemData.position) {
-                            listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
-                            break;
-                        } else if (currentPosition+1 === itemData.position || i+1 === itemElements.length) {
-                            listItemsULElement.children[i].insertAdjacentElement('afterend', element);
-                            break;
+                    if (itemElements.length !== 0) {
+                        for (let i = 0; i < itemElements.length; i++) {
+                            let currentPosition = Data.getItemPosition(type, getDataAttribute(itemElements[0], 'index'));
+                            let itemPos = Data.getItemPosition(type, index);
+                            if (currentPosition > itemPos) {
+                                listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
+                                break;
+                            } else if (currentPosition+1 === itemPos || i+1 === itemElements.length) {
+                                listItemsULElement.children[i].insertAdjacentElement('afterend', element);
+                                break;
+                            }
                         }
+                    } else {
+                        listItemsULElement.appendChild(element);
                     }
                 }
             })
@@ -714,6 +719,11 @@ const Data = (()=>{
     //     taskItem_1: {checked, title, textbody, priority, date},
     //     noteItem_1: {title, textBody}
     // }
+
+    function getItemPosition (type, index) {
+        let listIndex = getItem(type, index).listIndex;
+        return getList(type, listIndex).indexOf(index);
+    }
 
     function spawnNewList (type, name) {
         let typeLists = data.get(type+'Lists');
@@ -1093,7 +1103,8 @@ const Data = (()=>{
             logLocalStorage,
             updateListViewOptions,
             getListOptions,
-            updateItem
+            updateItem,
+            getItemPosition,
         }
     });
 })();
