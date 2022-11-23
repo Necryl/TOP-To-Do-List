@@ -765,9 +765,6 @@ const Data = (()=>{
         list.push(index);
         data.set(listName, list);
 
-        let pos = list.indexOf(index);
-        item.position = pos;
-
         
         let itemName = type+'Item_'+index;
         data.set(itemName, item);
@@ -809,7 +806,6 @@ const Data = (()=>{
         let result = {
             type,
             listIndex,
-            position: undefined,
             title: '',
             textBody: '',
         };
@@ -945,9 +941,6 @@ const Data = (()=>{
                                         itemTestFinal = false;
                                     } else if (!Number.isInteger(item.listIndex)) {
                                         console.warn("item's listIndex is not an Integer");
-                                        itemTestFinal = false;
-                                    } else if (!Number.isInteger(item.position)) {
-                                        console.warn("Item's position is not an Integer");
                                         itemTestFinal = false;
                                     } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
                                         console.warn("item's title or textBody is not a string");
