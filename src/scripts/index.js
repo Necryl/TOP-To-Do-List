@@ -488,7 +488,19 @@ const UI = (() => {
                 if (element.classList.contains('checked') && element.parentElement.classList.contains('listItems')) {
                     completedItemsULElement.appendChild(element);
                 } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
-                    listItemsULElement.appendChild(element);
+                    let itemElements = [...listItemsULElement.children]
+                    console.log('---------');
+                    for (let i = 0; i < itemElements.length; i++) {
+                        let currentPosition = Data.getItem(type, getDataAttribute(itemElements[i], 'index')).position;
+                        console.log(currentPosition, itemData.position);
+                        if (currentPosition > itemData.position) {
+                            listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
+                            break;
+                        } else if (currentPosition+1 === itemData.position || i+1 === itemElements.length) {
+                            listItemsULElement.children[i].insertAdjacentElement('afterend', element);
+                            break;
+                        }
+                    }
                 }
             })
             element.appendChild(toggleElem);
@@ -500,7 +512,6 @@ const UI = (() => {
             Data.updateItem(type, index, {title: event.target.value});
         });
         textElem.addEventListener('keydown', event => {
-            console.log('triggered');
             if (event.key === 'Enter' || event.keyCode === 13) {
                 event.target.blur();
             }
@@ -716,6 +727,8 @@ const Data = (()=>{
         let list = data.get(listName);
         let index = getNewIndex(list);
         list.push(index);
+        let pos = list.indexOf(index);
+        item.position = pos;
         data.set(listName, list);
         let typeList = data.get(type+'Items');
         typeList.push(index);
@@ -755,6 +768,7 @@ const Data = (()=>{
         let result = {
             type,
             listIndex,
+            position: undefined,
             title: '',
             textBody: '',
         };
@@ -885,6 +899,12 @@ const Data = (()=>{
                                         itemTestFinal = false;
                                     } else if (item.type !== 'task' && item.type !== 'note') {
                                         console.warn("item.type is invalid:", item.type);
+                                        itemTestFinal = false;
+                                    } else if (!Number.isInteger(item.listIndex)) {
+                                        console.warn("item's listIndex is not an Integer");
+                                        itemTestFinal = false;
+                                    } else if (!Number.isInteger(item.position)) {
+                                        console.warn("Item's position is not an Integer");
                                         itemTestFinal = false;
                                     } else if (typeof item.title !== 'string' || typeof item.textBody !== 'string') {
                                         console.warn("item's title or textBody is not a string");
@@ -1104,6 +1124,7 @@ const Engine =(()=>{
     function newList (type, name) {
         let newListIndex = Data.spawnNewList(type, name);
         UI.createMenuListElement(type, newListIndex);
+        UI.loadList(type, newListIndex);
     }
 
     function deleteList (task, index, menuElement) {
@@ -1255,5 +1276,5 @@ function compareMultipleItemsAsEqual () {
 Engine.initialise();
 // for testing
 // console.log('--------Testing--------');
-Data.logLocalStorage();
+// Data.logLocalStorage();
 // console.log('----------End of Testing---------')
