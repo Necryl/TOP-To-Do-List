@@ -440,12 +440,17 @@ const UI = (() => {
     }
 
     function getDataAttribute (element, key) {
+        if (key === 'index') {
+            return Number(element.getAttribute(`data-${key}`));
+        }
         return element.getAttribute(`data-${key}`);
     }
 
     function createMenuListElement (type, index) {
         let name = Data.getListName(type, index);
         let element = document.createElement('li');
+        setDataAttribute(element, 'type', type);
+        setDataAttribute(element, 'index', index);
         element.textContent = name;
         element.addEventListener('click', event => {
             menuListClickEvent(event, type, index);
@@ -567,6 +572,14 @@ const UI = (() => {
 
     function loadList (type, index) {
         currentList = [type, index];
+        let menuListElements = [allTasksMenuElement, ...taskListMenuElement.children, allNotesMenuElement, ...noteListMenuElement.children];
+        menuListElements.forEach(elem => {
+            if (getDataAttribute(elem, 'index') !== index || getDataAttribute(elem, 'type') !== type) {
+                elem.classList.remove('selected');
+            } else {
+                elem.classList.add('selected');
+            }
+        });
         if (index === 0) {
             newBtnListViewElement.style.display = 'none';
         } else {
@@ -593,13 +606,24 @@ const UI = (() => {
             let evt = new Event('input');
             listViewOptionElements[index].dispatchEvent(evt);
         });
-        list.forEach(itemIndex => {
+        list.forEach((itemIndex, i) => {
+            if (i === 0) {
+                loadItem(type, itemIndex);
+            }
             createListItemElement(type, itemIndex);
         });
     }
 
     function loadItem (type, index) {
         currentItem = [type, index];
+        let itemElements = [...listItemsULElement.children, ...completedItemsULElement.children];
+        itemElements.forEach(elem => {
+            if (getDataAttribute(elem, 'index') !== index) {
+                elem.classList.remove('selected');
+            } else {
+                elem.classList.add('selected');
+            }
+        });
         console.log(`loadItem('${type}', ${index})`);
     }
 
