@@ -526,7 +526,11 @@ const UI = (() => {
         });
         textElem.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.keyCode === 13) {
-                event.target.blur();
+                if (event.ctrlKey) {
+                    Engine.newItem();
+                } else {
+                    event.target.blur();
+                }
             }
         });
         textElem.addEventListener('click', event => {
