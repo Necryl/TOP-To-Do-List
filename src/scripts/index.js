@@ -54,6 +54,12 @@ const completedItemsULElement = document.querySelector('.listView .completedItem
 const completedTitleWrapperElement = document.querySelector('.listView .completedTitle-wrapper');
 const completedTitleElement = document.querySelector('.listView #completedTitle');
 
+const contentViewTitleElement = document.querySelector('.contentView .itemTitle');
+const contentViewDescElement = document.querySelector('.contentView textarea.description');
+const contentViewPriorityElement = document.querySelector('.contentView .options select');
+const contentViewDateElement = document.querySelector(".contentView .options input[type='date']");
+const contentViewDeleteBtnElement = document.querySelector(".contentView .options #delete");
+
 // state variables
 let displayState; // possible states: triple, double, single
 let currentView = listViewElement;
@@ -491,10 +497,10 @@ const UI = (() => {
                     completedItemsULElement.appendChild(element);
                 } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
                     let itemElements = [...listItemsULElement.children]
+                    let itemPos = Data.getItemPosition(type, index);
                     if (itemElements.length !== 0) {
                         for (let i = 0; i < itemElements.length; i++) {
-                            let currentPosition = Data.getItemPosition(type, getDataAttribute(itemElements[0], 'index'));
-                            let itemPos = Data.getItemPosition(type, index);
+                            let currentPosition = Data.getItemPosition(type, getDataAttribute(itemElements[i], 'index'));
                             if (currentPosition > itemPos) {
                                 listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
                                 break;
@@ -504,6 +510,7 @@ const UI = (() => {
                             }
                         }
                     } else {
+                        console.log("list is empty");
                         listItemsULElement.appendChild(element);
                     }
                 }
@@ -631,7 +638,7 @@ const UI = (() => {
                 elem.classList.add('selected');
             }
         });
-        console.log(`loadItem('${type}', ${index})`);
+        
     }
 
     function triggerRightClickMenu (event, contentObject) {
