@@ -476,6 +476,7 @@ const UI = (() => {
     function createListItemElement (type, index) {
         let itemData = Data.getItem(type, index);
         let element = document.createElement('li');
+        Data.spawnNewItemElem(type, index);
         element.classList.add(type);
         if (type === 'task') {
             let toggleElem = document.createElement('input');
@@ -521,7 +522,7 @@ const UI = (() => {
         textElem.setAttribute('type', 'text');
         textElem.setAttribute('value', itemData.title);
         textElem.addEventListener('input', event => {
-            Data.updateItem(type, index, {title: event.target.value});
+            Engine.updateItemProperty(type, index, 'listView', {title: textElem.value});
         });
         textElem.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.keyCode === 13) {
@@ -533,6 +534,7 @@ const UI = (() => {
             switchToContentView();
         })
         element.appendChild(textElem);
+        Data.updateItemElem(type, index, {titleElem: textElem});
         if (type === 'task') {
             let priorityElem = document.createElement('select');
             priorityElem.classList.add('priority');
@@ -548,13 +550,15 @@ const UI = (() => {
             });
             element.classList.add(itemData.priority);
             priorityElem.addEventListener('input', event => {
-                Data.updateItem(type, index, {priority: priorityElem.value});
+                Engine.updateItemProperty(type, index, 'listView', {priority: priorityElem.value});
                 priorityOptions.forEach(option => {
                     element.classList.remove(option);
                 });
                 element.classList.add(priorityElem.value);
             });
             element.appendChild(priorityElem);
+            Data.updateItemElem(type, index, {priorityElem: priorityElem});
+
             let dateElem = document.createElement('input');
             dateElem.setAttribute('type', 'date');
             dateElem.value = itemData.date === 'No due date' ? '':itemData.date;
@@ -562,16 +566,10 @@ const UI = (() => {
                 dateElem.classList.add('noDate');
             }
             dateElem.addEventListener('input', event => {
-                let value = dateElem.value;
-                if (value === '') {
-                    value = "No due date";
-                    dateElem.classList.add('noDate');
-                } else {
-                    dateElem.classList.remove('noDate');
-                }
-                Data.updateItem(type, index, {date: value});
+                Engine.updateItemProperty(type, index, 'listView', {date: dateElem.value});
             });
             element.appendChild(dateElem);
+            Data.updateItemElem(type, index, {dateElem: dateElem});
         }
         setDataAttribute(element, 'index', index);
         if (itemData.checked === true) {
@@ -579,6 +577,9 @@ const UI = (() => {
         } else {
             listItemsULElement.appendChild(element);
         }
+
+        Data.updateItemElem(type, index, {elem: element});
+
         return textElem;
     }
 
@@ -618,6 +619,8 @@ const UI = (() => {
             let evt = new Event('input');
             listViewOptionElements[index].dispatchEvent(evt);
         });
+        
+        Data.clearItemElems();
         list.forEach((itemIndex, i) => {
             createListItemElement(type, itemIndex);
         });
@@ -638,7 +641,12 @@ const UI = (() => {
                 elem.classList.add('selected');
             }
         });
-        
+        let itemData = Data.getItem(type, index);    
+
+        contentViewTitleElement.value = itemData.title;
+        contentViewDescElement.value = itemData.textBody;
+        contentViewPriorityElement.value = itemData.priority;
+        contentViewDateElement.value = itemData.date === 'No due date'? '':itemData.date;
     }
 
     function triggerRightClickMenu (event, contentObject) {
@@ -688,6 +696,53 @@ const UI = (() => {
         }, [])
     }
 
+    function updateItem (type, index, exception, entries) {
+        let presentItem = _.isEqual(currentItem, [type, index]);
+        let target = exception === 'listView' ? 'contentView':'listView';
+        function getElement (target, name) {
+            name += 'Elem';
+            if (target === 'listView') {
+                return Data.getItemElem(type, index, name);
+            } else {
+                switch (name) {
+                    case 'titleElem':
+                        return contentViewTitleElement;
+                        break;
+                    case 'priorityElem':
+                        return contentViewPriorityElement;
+                        break;
+                    case 'dateElem':
+                        return contentViewDateElement;
+                        break;
+                    case 'textBodyElem':
+                        return contentViewDescElement;
+                        break;
+                }
+            }
+        }
+        Object.entries(entries).forEach(entry => {
+            let element = getElement(target, entry[0]);
+            if (['title', 'priority', 'date'].includes(entry[0])) {
+                if (target !== 'contentView' || presentItem === true) {
+                    element.value = entry[1];
+                }
+                if (entry[0] === 'date') {
+                    if (entry[1] === '') {
+                        if (target === 'contentView') {
+                            getElement('listView', 'date').classList.add('noDate');
+                        }
+                        element.classList.add('noDate');
+                    } else {
+                        if (target === 'contentView') {
+                            getElement('listView', 'date').classList.remove('noDate');
+                        }
+                        element.classList.remove('noDate');
+                    }
+                }
+            }
+        });
+    }
+
     return createModule({
         name: 'UI',
         processes: ['updatingDisplay', 'loadingTooltips'],
@@ -706,6 +761,7 @@ const UI = (() => {
             loadList,
             getListViewOptionsData,
             createListItemElement,
+            updateItem,
         }
     });
 })()
@@ -726,6 +782,37 @@ const Data = (()=>{
     //     taskItem_1: {checked, title, textbody, priority, date},
     //     noteItem_1: {title, textBody}
     // }
+
+    let listItemElems = {
+        task: {},
+        note: {}
+    }
+
+    function clearItemElems () {
+        listItemElems = {
+            task: {},
+            note: {}
+        }
+    }
+
+    function updateItemElem (type, index, entries) {
+        Object.entries(entries).forEach(entry => {
+            listItemElems[type][index][entry[0]] = entry[1];
+        });
+    }
+
+    function spawnNewItemElem (type, index) {
+        listItemElems[type][index] = {
+            elem: undefined,
+            titleElem: undefined,
+            priorityElem: undefined,
+            dateElem: undefined,
+        };
+    }
+
+    function getItemElem (type, index, elemName) {
+        return listItemElems[type][index][elemName];
+    }
 
     function getItemPosition (type, index) {
         return getList(type, currentList[1]).indexOf(index);
@@ -1104,6 +1191,10 @@ const Data = (()=>{
             getListOptions,
             updateItem,
             getItemPosition,
+            clearItemElems,
+            updateItemElem,
+            spawnNewItemElem,
+            getItemElem,
         }
     });
 })();
@@ -1185,6 +1276,17 @@ const Engine =(()=>{
         let itemIndex = Data.spawnNewItem(type, currentList[1]);
         UI.createListItemElement(type, itemIndex).focus();
     }
+
+    function updateItemProperty (type, index, source, entries) {
+        Object.entries(entries).forEach(entry => {
+            let value = entry[1];
+            if (entry[0] === 'date' && value === '') {
+                value = 'No due date';
+            }
+            Data.updateItem(type, index, {[entry[0]]: value});
+        });
+        UI.updateItem(type, index, source, entries);
+    }
     
     return createModule({
         name: 'Engine',
@@ -1197,6 +1299,7 @@ const Engine =(()=>{
             resetData,
             deleteList,
             newItem,
+            updateItemProperty,
         }
     });
 })()
@@ -1290,6 +1393,18 @@ completedTitleElement.addEventListener('click', event => {
         completedTitleElement.classList.add('collapse');
     }
 })
+contentViewTitleElement.addEventListener('input', event => {
+    Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {title: contentViewTitleElement.value});
+});
+contentViewDescElement.addEventListener('input', event => {
+    Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {textBody: contentViewDescElement.value});
+});
+contentViewPriorityElement.addEventListener('input', event => {
+    Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {priority: contentViewPriorityElement.value});
+});
+contentViewDateElement.addEventListener('input', event => {
+    Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {date: contentViewDateElement.value});
+});
 
 // tool functions
 function isOfType(subject, type=undefined) {
