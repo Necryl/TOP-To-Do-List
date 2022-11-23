@@ -473,9 +473,6 @@ const UI = (() => {
             if (itemData.checked) {
                 element.classList.add('checked');
             }
-            toggleElem.addEventListener('click', event => {
-                event.stopPropagation();
-            });
             toggleElem.addEventListener('input', event => {
                 Data.updateItem(type, index, {checked: event.target.checked});
                 if (event.target.checked) {
@@ -489,10 +486,8 @@ const UI = (() => {
                     completedItemsULElement.appendChild(element);
                 } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
                     let itemElements = [...listItemsULElement.children]
-                    console.log('---------');
                     for (let i = 0; i < itemElements.length; i++) {
                         let currentPosition = Data.getItem(type, getDataAttribute(itemElements[i], 'index')).position;
-                        console.log(currentPosition, itemData.position);
                         if (currentPosition > itemData.position) {
                             listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
                             break;
@@ -516,6 +511,10 @@ const UI = (() => {
                 event.target.blur();
             }
         });
+        textElem.addEventListener('click', event => {
+            loadItem(type, index);
+            switchToContentView();
+        })
         element.appendChild(textElem);
         if (type === 'task') {
             let priorityElem = document.createElement('select');
@@ -558,10 +557,6 @@ const UI = (() => {
             element.appendChild(dateElem);
         }
         setDataAttribute(element, 'index', index);
-        element.addEventListener('click', event => {
-            loadItem(type, index);
-            switchToContentView();
-        });
         if (itemData.checked === true) {
             completedItemsULElement.appendChild(element);
         } else {
