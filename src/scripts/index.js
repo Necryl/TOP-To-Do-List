@@ -609,7 +609,11 @@ const UI = (() => {
         list.forEach((itemIndex, i) => {
             createListItemElement(type, itemIndex);
         });
-        loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
+        if (listItemsULElement.children.length > 0) {
+            loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
+        } else if (completedItemsULElement.children.length > 0) {
+            loadItem(type, getDataAttribute(completedItemsULElement.children[0], 'index'));
+        }
     }
 
     function loadItem (type, index) {
@@ -742,16 +746,23 @@ const Data = (()=>{
         let item = createItem(type, listIndex);
         let listName = type+'List_'+listIndex;
         let list = data.get(listName);
-        let index = getNewIndex(list);
-        list.push(index);
-        let pos = list.indexOf(index);
-        item.position = pos;
-        data.set(listName, list);
         let typeList = data.get(type+'Items');
+        
+        let index = getNewIndex(typeList);
+
         typeList.push(index);
         data.set(type+'Items', typeList);
+        
+        list.push(index);
+        data.set(listName, list);
+
+        let pos = list.indexOf(index);
+        item.position = pos;
+
+        
         let itemName = type+'Item_'+index;
         data.set(itemName, item);
+
         return index;
     }
 
@@ -782,6 +793,10 @@ const Data = (()=>{
     }
     
     function createItem (type, listIndex) {
+        // console.log('createItem');
+        // console.log('type:', type)
+        // console.log('listIndex:', listIndex)
+
         let result = {
             type,
             listIndex,
@@ -794,6 +809,8 @@ const Data = (()=>{
             result.date = 'No due date';
             result.checked = false;
         }
+        // console.log("final result: v");
+        // console.dir(result);
 
         return result;
     }
