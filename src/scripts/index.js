@@ -721,8 +721,7 @@ const Data = (()=>{
     // }
 
     function getItemPosition (type, index) {
-        let listIndex = getItem(type, index).listIndex;
-        return getList(type, listIndex).indexOf(index);
+        return getList(type, currentList[1]).indexOf(index);
     }
 
     function spawnNewList (type, name) {
