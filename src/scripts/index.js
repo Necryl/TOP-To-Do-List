@@ -53,6 +53,7 @@ const listItemsULElement = document.querySelector('.listView .listItems');
 const completedItemsULElement = document.querySelector('.listView .completedItems');
 const completedTitleWrapperElement = document.querySelector('.listView .completedTitle-wrapper');
 const completedTitleElement = document.querySelector('.listView #completedTitle');
+const removeCompletedBtnElement = document.querySelector('.listView #removeCompleted');
 
 const contentViewTitleElement = document.querySelector('.contentView .itemTitle');
 const contentViewDescElement = document.querySelector('.contentView textarea.description');
@@ -862,6 +863,7 @@ const UI = (() => {
             updateItem,
             removeItem,
             removeList,
+            getDataAttribute,
         }
     });
 })()
@@ -1506,6 +1508,11 @@ contentViewDateElement.addEventListener('input', event => {
 });
 contentViewDeleteBtnElement.addEventListener('click', event => {
     Engine.deleteItem(...currentItem);
+});
+removeCompletedBtnElement.addEventListener('click', event => {
+    [...completedItemsULElement.children].forEach(itemElem => {
+        Engine.deleteItem(currentList[0], UI.getDataAttribute(itemElem, 'index'));
+    });
 });
 
 
