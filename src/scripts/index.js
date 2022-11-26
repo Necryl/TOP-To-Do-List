@@ -59,6 +59,8 @@ const contentViewDescElement = document.querySelector('.contentView textarea.des
 const contentViewPriorityElement = document.querySelector('.contentView .options select');
 const contentViewDateElement = document.querySelector(".contentView .options input[type='date']");
 const contentViewDeleteBtnElement = document.querySelector(".contentView .options #delete");
+const contentViewClearElement = document.querySelector(".contentView .clear");
+
 
 // state variables
 let displayState; // possible states: triple, double, single
@@ -575,6 +577,13 @@ const UI = (() => {
             element.appendChild(dateElem);
             Data.updateItemElem(type, index, {dateElem: dateElem});
         }
+
+        element.addEventListener('animationend', event => {
+            if (element.classList.contains('removing')) {
+                element.remove();
+            }
+        });
+
         setDataAttribute(element, 'index', index);
         if (itemData.checked === true) {
             completedItemsULElement.appendChild(element);
@@ -630,8 +639,8 @@ const UI = (() => {
         });
         if (listItemsULElement.children.length > 0) {
             loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
-        } else if (completedItemsULElement.children.length > 0) {
-            loadItem(type, getDataAttribute(completedItemsULElement.children[0], 'index'));
+        } else {
+            clearContentView();
         }
     }
 
@@ -651,6 +660,7 @@ const UI = (() => {
         contentViewDescElement.value = itemData.textBody;
         contentViewPriorityElement.value = itemData.priority;
         contentViewDateElement.value = itemData.date === 'No due date'? '':itemData.date;
+        contentViewClearElement.style.display = 'none';
     }
 
     function triggerRightClickMenu (event, contentObject) {
@@ -747,6 +757,47 @@ const UI = (() => {
         });
     }
 
+    function removeItem (type, index) {
+        if (_.isEqual(currentItem, [type, index])) {
+            let checked = Data.getItem(type, index).checked;
+            let list = checked ? completedItemsULElement.children : listItemsULElement.children;
+            if (list.length < 2) {
+                if (checked && listItemsULElement.children.length > 0) {
+                    loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
+                } else {
+                    clearContentView();
+                }
+            } else {
+                for (let i = 0; i < list.length; i++) {
+                    if (getDataAttribute(list[i], 'index') === index) {
+                        if (i === list.length-1) {
+                            loadItem(type, getDataAttribute(list[i-1], 'index'));
+                        } else {
+                            loadItem(type, getDataAttribute(list[i+1], 'index'));
+                        }
+                    }
+                }
+            }
+        }
+        let itemElements = [...listItemsULElement.children, ...completedItemsULElement.children];
+        for (let i = 0; i < itemElements.length; i++) {
+            if (getDataAttribute(itemElements[i], 'index') === index) {
+                itemElements[i].classList.add('removing');
+                break;
+            }
+        }
+    }
+
+    function clearContentView () {
+        currentItem = null;
+
+        contentViewTitleElement.value = '';
+        contentViewDescElement.value = '';
+        contentViewPriorityElement.value = 'normal';
+        contentViewDateElement.value = '';
+        contentViewClearElement.style.display = 'grid';
+    }
+
     return createModule({
         name: 'UI',
         processes: ['updatingDisplay', 'loadingTooltips'],
@@ -763,29 +814,17 @@ const UI = (() => {
             alert,
             createMenuListElement,
             loadList,
+            loadItem,
             getListViewOptionsData,
             createListItemElement,
             updateItem,
+            removeItem,
         }
     });
 })()
 
 const Data = (()=>{    
     const defaultListNames = ['taskLists', 'noteLists', 'taskItems', 'noteItems', 'taskList_0', 'noteList_0'];
-    
-    // localStorageExample = {
-    //     TOP_Project_ToDoList_StorageExists: true,
-    //     taskLists: [1, 3, 4, 5, 6],
-    //     noteLists: [1, 2, 3, 4, 7, 8],
-    //     taskItems: [1, 2, 3, 4, 5, 6, 12, 8],
-    //     noteItems: [1, 2, 3, 5],
-    //     taskList_1_name: "Daily",
-    //     taskList_1: [4, 5, 6, 12, 8],
-    //     taskList_3_name: "Daily",
-    //     taskList_3: [1, 2, 3],
-    //     taskItem_1: {checked, title, textbody, priority, date},
-    //     noteItem_1: {title, textBody}
-    // }
 
     let listItemElems = {
         task: {},
@@ -837,12 +876,13 @@ const Data = (()=>{
     function removeList (type, index) {
         let listName = type+'List_'+index;
         if (data.exists(listName)) {
-            let listItems = data.get(listName);
-            listItems.forEach(itemIndex => removeItem(itemIndex, type));
+            let listItems = getList(type, index);
+            listItems.forEach(itemIndex => removeItem(type, itemIndex));
             let typeLists = data.get(type+'Lists');
             typeLists.splice(typeLists.indexOf(index), 1);
             data.set(type+'Lists', typeLists);
             data.remove(listName+'_name');
+            data.remove(listName+'_options');
             data.remove(listName);
         } else {
             console.error(`List doesn't exist: ${listName}`);
@@ -1279,6 +1319,7 @@ const Engine =(()=>{
         let type = currentList[0];
         let itemIndex = Data.spawnNewItem(type, currentList[1]);
         UI.createListItemElement(type, itemIndex).focus();
+        UI.loadItem(type, itemIndex);
     }
 
     function updateItemProperty (type, index, source, entries) {
@@ -1290,6 +1331,20 @@ const Engine =(()=>{
             Data.updateItem(type, index, {[entry[0]]: value});
         });
         UI.updateItem(type, index, source, entries);
+    }
+
+    function deleteItem (type, index) {
+        let inPresentList = false;
+        let presentList = Data.getList(...currentList);
+        if (_.isEqual(currentItem, [type, index])) {
+            inPresentList = true;
+        } else if (presentList.includes(index)) {
+            inPresentList = true;
+        }
+        if (inPresentList) {
+            UI.removeItem(type, index);
+        }
+        Data.removeItem(type, index);
     }
     
     return createModule({
@@ -1304,6 +1359,7 @@ const Engine =(()=>{
             deleteList,
             newItem,
             updateItemProperty,
+            deleteItem,
         }
     });
 })()
@@ -1409,6 +1465,10 @@ contentViewPriorityElement.addEventListener('input', event => {
 contentViewDateElement.addEventListener('input', event => {
     Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {date: contentViewDateElement.value});
 });
+contentViewDeleteBtnElement.addEventListener('click', event => {
+    Engine.deleteItem(...currentItem);
+});
+
 
 // tool functions
 function isOfType(subject, type=undefined) {

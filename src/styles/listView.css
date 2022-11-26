@@ -460,3 +460,25 @@
         opacity: 100%;
     }
 }
+
+.listView :is(.listItems, .completedItems) li.removing {
+    justify-self: end;
+    animation: removing 300ms ease-in-out forwards !important;
+    max-height: 0em;
+    opacity: 0%;
+}
+@keyframes removing {
+    0% {
+        width: 100%;
+        opacity: 100%;
+        max-height: 3em;
+    }
+    70% {
+        width: 50%;
+        opacity: 0%;
+        max-height: 3em;
+    }
+    100% {
+        max-height: 0em;
+    }
+}
