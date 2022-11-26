@@ -493,6 +493,9 @@ const UI = (() => {
             if (itemData.checked) {
                 element.classList.add('checked');
             }
+            toggleElem.addEventListener('click', event => {
+                event.stopPropagation();
+            });
             toggleElem.addEventListener('input', event => {
                 Data.updateItem(type, index, {checked: event.target.checked});
                 if (event.target.checked) {
@@ -587,6 +590,12 @@ const UI = (() => {
         element.addEventListener('animationend', event => {
             if (element.classList.contains('removing')) {
                 element.remove();
+            }
+        });
+        element.addEventListener('click', event => {
+            if (displayState === 'single') {
+                loadItem(type, index);
+                switchToContentView();
             }
         });
 
