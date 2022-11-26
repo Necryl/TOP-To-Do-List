@@ -658,9 +658,16 @@ const UI = (() => {
 
         contentViewTitleElement.value = itemData.title;
         contentViewDescElement.value = itemData.textBody;
-        contentViewPriorityElement.value = itemData.priority;
-        contentViewDateElement.value = itemData.date === 'No due date'? '':itemData.date;
+        if (type === 'task') {
+            contentViewPriorityElement.value = itemData.priority;
+            contentViewDateElement.value = itemData.date === 'No due date'? '':itemData.date;
+        }
         contentViewClearElement.style.display = 'none';
+
+        ['clear', 'task', 'note'].forEach(item => {
+            contentViewElement.classList.remove(item);
+        })
+        contentViewElement.classList.add(type);
     }
 
     function triggerRightClickMenu (event, contentObject) {
@@ -796,6 +803,11 @@ const UI = (() => {
         contentViewPriorityElement.value = 'normal';
         contentViewDateElement.value = '';
         contentViewClearElement.style.display = 'grid';
+
+        ['clear', 'task', 'note'].forEach(item => {
+            contentViewElement.classList.remove(item);
+        })
+        contentViewElement.classList.add('clear');
     }
 
     return createModule({

@@ -43,6 +43,7 @@
     display: grid;
     grid-auto-flow: column;
     justify-content: space-between;
+    justify-content: end;
     gap: 1ch;
 }
 
@@ -112,4 +113,8 @@
     background-color: rgba(0, 0, 0, 0.384);
     padding: 0.5em;
     border-radius: 0.35em;
+}
+
+.contentView.note .options :is(select, input) {
+    display: none;
 }
