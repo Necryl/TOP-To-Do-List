@@ -465,8 +465,13 @@ const UI = (() => {
         });
         element.addEventListener('contextmenu', (event) => {
             triggerRightClickMenu(event, {
-                "Delete this list": ()=>(Engine.deleteList(type, index, element)),
+                "Delete this list": ()=>(Engine.deleteList(type, index)),
             });
+        });
+        element.addEventListener('animationend', event => {
+            if (element.classList.contains('removing')) {
+                element.remove();
+            }
         });
         if (type === 'task') {
             taskListMenuElement.appendChild(element);
@@ -795,6 +800,31 @@ const UI = (() => {
         }
     }
 
+    function removeList (type, index) {
+        if (currentList[0] === type && currentList[1] === 0) {
+            let presentListItemElements = [...listItemsULElement.children, ...completedItemsULElement.children];
+            presentListItemElements.forEach(elem => {
+                let itemIndex = getDataAttribute(elem, 'index');
+                if (Data.getItem(type, itemIndex).listIndex === index) {
+                    removeItem(type, itemIndex);
+                }    
+            });
+        }
+        let list = type === 'task' ? [allTasksMenuElement, ...taskListMenuElement.children] : [allNotesMenuElement, ...noteListMenuElement.children];
+        for (let i = 0; i < list.length; i++) {
+            if (getDataAttribute(list[i], 'index') === index) {
+                if (_.isEqual(currentList, [type, index])) {
+                    if (i === list.length-1) {
+                        loadList(type, getDataAttribute(list[i-1], 'index'));
+                    } else {
+                        loadList(type, getDataAttribute(list[i+1], 'index'));
+                    }
+                }
+                list[i].classList.add('removing');
+            }
+        }
+    }
+
     function clearContentView () {
         currentItem = null;
 
@@ -831,6 +861,7 @@ const UI = (() => {
             createListItemElement,
             updateItem,
             removeItem,
+            removeList,
         }
     });
 })()
@@ -1318,13 +1349,9 @@ const Engine =(()=>{
         UI.loadList(type, newListIndex);
     }
 
-    function deleteList (task, index, menuElement) {
-        menuElement.remove();
-        Data.removeList(task, index);
-        if (_.isEqual(currentList, [task, index])) {
-            currentList = ['task', '0'];
-            UI.loadList(...currentList);
-        }
+    function deleteList (type, index) {
+        UI.removeList(type, index);
+        Data.removeList(type, index);
     }
 
     function newItem () {

@@ -141,4 +141,37 @@ body:not(body.triple) .menu-container.visible {
 
 .menu :is(#tasks, #notes) li {
     user-select: none;
+    animation: menu-new 100ms ease-in-out forwards;
+}
+@keyframes menu-new {
+    0% {
+        max-height: 0em;
+        opacity: 0%;
+    }
+    40% {
+        max-height: 3em;
+        opacity: 0%;
+    }
+    100% {
+        opacity: 100%;
+        max-height: 3em;
+    }
+}
+
+.menu :is(#tasks, #notes) li.removing {
+    animation: menu-removing 100ms ease-in-out forwards;
+}
+@keyframes menu-removing {
+    0% {
+        opacity: 100%;
+        max-height: 3em;
+    }
+    60% {
+        max-height: 3em;
+        opacity: 0%;
+    }
+    100% {
+        opacity: 0%;
+        max-height: 0em;
+    }
 }
