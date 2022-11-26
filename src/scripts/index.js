@@ -614,8 +614,10 @@ const UI = (() => {
         });
         if (index === 0) {
             newBtnListViewElement.style.display = 'none';
+            listNameInListViewElement.toggleAttribute('disabled', true);
         } else {
             newBtnListViewElement.style.display = 'initial';
+            listNameInListViewElement.toggleAttribute('disabled', false);
         }
         if (type === 'note') {
             listViewOptionsElement.style.display = 'none';
@@ -841,6 +843,16 @@ const UI = (() => {
         contentViewElement.classList.add('clear');
     }
 
+    function updateListName (type, index, name) {
+        let list = type === 'task' ? taskListMenuElement.children : noteListMenuElement.children;
+        for (let i = 0; i < list.length; i++) {
+            if (getDataAttribute(list[i], 'index') === index) {
+                list[i].textContent = name;
+                break;
+            }
+        }
+    }
+
     return createModule({
         name: 'UI',
         processes: ['updatingDisplay', 'loadingTooltips'],
@@ -864,6 +876,7 @@ const UI = (() => {
             removeItem,
             removeList,
             getDataAttribute,
+            updateListName,
         }
     });
 })()
@@ -1260,6 +1273,11 @@ const Data = (()=>{
         data.set(type+'Item_'+index, itemData)
     }
 
+    function updateListName (type, index, name) {
+        let id = type+'List_'+index;
+        data.set(id+'_name', name);
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -1284,6 +1302,7 @@ const Data = (()=>{
             updateItemElem,
             spawnNewItemElem,
             getItemElem,
+            updateListName,
         }
     });
 })();
@@ -1374,6 +1393,11 @@ const Engine =(()=>{
         UI.updateItem(type, index, source, entries);
     }
 
+    function updateListName (type, index, name) {
+        UI.updateListName(type, index, name);
+        Data.updateListName(type, index, name);
+    }
+
     function deleteItem (type, index) {
         let inPresentList = false;
         let presentList = Data.getList(...currentList);
@@ -1401,6 +1425,7 @@ const Engine =(()=>{
             newItem,
             updateItemProperty,
             deleteItem,
+            updateListName,
         }
     });
 })()
@@ -1409,7 +1434,6 @@ const Engine =(()=>{
 window.onresize = () => {
     UI.updateDisplay();
 };
-
 openMenuBtnElement.addEventListener('click', (event) => {
     if (displayState != 'triple') {
         [menuContainerElement, menuElement].forEach(element => {
@@ -1513,6 +1537,9 @@ removeCompletedBtnElement.addEventListener('click', event => {
     [...completedItemsULElement.children].forEach(itemElem => {
         Engine.deleteItem(currentList[0], UI.getDataAttribute(itemElem, 'index'));
     });
+});
+listNameInListViewElement.addEventListener('input', event => {
+    Engine.updateListName(...currentList, event.target.value);
 });
 
 
