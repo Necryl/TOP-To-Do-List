@@ -96,6 +96,8 @@ const UI = (() => {
 
     let loadingScreenVisible = false;
 
+    let currentListItems = [];
+
     function updateDisplayState () {
 
         Engine.setLoadingStatus(UI, 'updatingDisplay', true);
@@ -503,6 +505,10 @@ const UI = (() => {
         }
     }
 
+    function getItemPosition (index) {
+        return getListSorted(currentList[0], Data.getList(...currentList)).indexOf(index);
+    }
+
     function createListItemElement (type, index) {
         let itemData = Data.getItem(type, index);
         let element = document.createElement('li');
@@ -531,10 +537,10 @@ const UI = (() => {
                     completedItemsULElement.appendChild(element);
                 } else if (element.classList.contains('checked') === false && element.parentElement.classList.contains('completedItems')) {
                     let itemElements = [...listItemsULElement.children]
-                    let itemPos = Data.getItemPosition(type, index);
+                    let itemPos = getItemPosition(index);
                     if (itemElements.length !== 0) {
                         for (let i = 0; i < itemElements.length; i++) {
-                            let currentPosition = Data.getItemPosition(type, getDataAttribute(itemElements[i], 'index'));
+                            let currentPosition = getItemPosition(getDataAttribute(itemElements[i], 'index'));
                             if (currentPosition > itemPos) {
                                 listItemsULElement.children[i].insertAdjacentElement('beforebegin', element);
                                 break;
@@ -659,10 +665,9 @@ const UI = (() => {
             completedTitleWrapperElement.style.display = 'grid';
             completedItemsULElement.style.display = 'grid';
         }
-        let list = Data.getList(type, index);
-
+        
         listNameInListViewElement.value = Data.getListName(type, index);
-
+        
         Data.getListOptions(type, index).forEach((value, index) => {
             listViewOptionElements[index].checked = value;
             if (index > 1) {
@@ -670,6 +675,28 @@ const UI = (() => {
                 listViewOptionElements[index].dispatchEvent(evt);
             }
         });
+        
+        let list = getListSorted(type, Data.getList(type, index));
+        currentListItems = list;
+        
+        [listItemsULElement, completedItemsULElement].forEach(element => {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+        });
+        
+        Data.clearItemElems();
+        list.forEach((itemIndex, i) => {
+            createListItemElement(type, itemIndex);
+        });
+        if (listItemsULElement.children.length > 0) {
+            loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
+        } else {
+            clearContentView();
+        }
+    }
+
+    function getListSorted (type, list=Data.getList(...currentList)) {
         let sortType = null;
         if (listViewOptionElements[0].checked) {
             sortType = 'priority';
@@ -690,22 +717,7 @@ const UI = (() => {
                 list = Data.mixSorted(Data.sortByPriority(type, list), Data.sortByDate(type, list));
             }
         }
-        
-        [listItemsULElement, completedItemsULElement].forEach(element => {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
-        });
-        
-        Data.clearItemElems();
-        list.forEach((itemIndex, i) => {
-            createListItemElement(type, itemIndex);
-        });
-        if (listItemsULElement.children.length > 0) {
-            loadItem(type, getDataAttribute(listItemsULElement.children[0], 'index'));
-        } else {
-            clearContentView();
-        }
+        return list;
     }
 
     function loadItem (type, index) {
