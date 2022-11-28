@@ -19,11 +19,6 @@ const closeMenuBtnElement = document.querySelector('#close-menu');
 const openMenuBtnElement = document.querySelector('#open-menu');
 const returnBtnElement = document.querySelector('#return');
 
-const menuContainerElement = document.querySelector('.menu-container');
-const menuElement = document.querySelector('.menu');
-const listViewElement = document.querySelector('.listView');
-const contentViewElement = document.querySelector('.contentView');
-
 const loadingContainerElement = document.querySelector('.loading-container');
 const toolTipsElement = document.querySelector('.toolTips');
 
@@ -31,6 +26,14 @@ const alertViewElement = document.querySelector('.alertView');
 const alertMsgElement = document.querySelector('.alertView .alert-message');
 const alertBtnsContainerElement = document.querySelector('.alertView .alertBtns-container');;
 const alertTitleElement = document.querySelector('.alertView .alert-title');
+
+
+const menuContainerElement = document.querySelector('.menu-container');
+const menuElement = document.querySelector('.menu');
+const listViewContainerElement = document.querySelector('.listView-container');
+const listViewElement = document.querySelector('.listView');
+const contentViewContainerElement = document.querySelector('.contentView-container');
+const contentViewElement = document.querySelector('.contentView');
 
 const rightClickDropdownElement = document.querySelector('.right-click-dropdown');
 
@@ -65,7 +68,7 @@ const contentViewClearElement = document.querySelector(".contentView .clear");
 
 // state variables
 let displayState; // possible states: triple, double, single
-let currentView = listViewElement;
+let currentView = listViewContainerElement;
 let currentList = ['task', 0];
 let currentItem;
 let loadingStatus = {
@@ -108,7 +111,7 @@ const UI = (() => {
             result = 'triple';
         }
         if (result !== 'single') {
-            currentView = listViewElement;
+            currentView = listViewContainerElement;
         }
         
         displayState = result;
@@ -126,7 +129,7 @@ const UI = (() => {
         if (displayState === 'single') {
             updateSingleView();
         } else {
-            removeClasses('hide', [listViewElement, contentViewElement]);
+            removeClasses('hide', [listViewContainerElement, contentViewContainerElement]);
         }
 
         setTimeout(()=>{
@@ -136,7 +139,7 @@ const UI = (() => {
                     overflow = true;
                 }
             });
-            if (overflow===true && displayState !== 'single') {
+            if (viewOverflow() && displayState !== 'single') {
                 displayState = displayState === 'triple' ? 'double':'single';
                 updateDisplayMode();
             } else {
@@ -145,8 +148,27 @@ const UI = (() => {
         }, 300);
     }
 
+    function viewOverflow () {
+        let overflow = false;
+        [
+            ...getListViewItems(),
+            listViewContainerElement,
+            listViewElement,
+            listViewOptionsElement,
+            contentViewContainerElement,
+            contentViewElement,
+            menuContainerElement,
+            menuElement
+        ].forEach(element => {
+            if (checkForScrollBars(element, 'horizontal') === true) {
+                overflow = true;
+            }
+        });
+        return overflow;
+    }
+
     function updateSingleView () {
-        [listViewElement, contentViewElement].forEach(view => {
+        [listViewContainerElement, contentViewContainerElement].forEach(view => {
             if (view !== currentView) {
                 view.classList.add('hide');
             } else {
@@ -418,7 +440,7 @@ const UI = (() => {
 
     function switchToContentView () {
         if (displayState === 'single') {
-            currentView = contentViewElement;
+            currentView = contentViewContainerElement;
             updateSingleView();
         }
     }
@@ -911,6 +933,7 @@ const UI = (() => {
             removeList,
             getDataAttribute,
             updateListName,
+            viewOverflow,
         }
     });
 })()
@@ -1544,7 +1567,7 @@ menuContainerElement.addEventListener('click', (event) => {
     UI.hideMenu();
 })
 returnBtnElement.addEventListener('click', event => {
-    currentView = listViewElement;
+    currentView = listViewContainerElement;
     UI.updateSingleView();
 })
 newBtnMenuElements.forEach((newBtn, index) => {
@@ -1579,6 +1602,9 @@ allNotesMenuElement.addEventListener('click', event => {
 function menuListClickEvent (event, type, index) {
     UI.loadList(type, index);
     closeMenuBtnElement.click();
+    if (UI.viewOverflow()) {
+        UI.updateDisplay();
+    }
 }
 showPriorityElement.addEventListener('input', event => {
     if (event.target.checked === false) {

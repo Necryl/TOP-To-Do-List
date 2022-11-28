@@ -1,6 +1,7 @@
 .menu-container {
     position: relative;
     z-index: 2;
+    min-width: initial;
 }
 body:not(body.triple) .menu-container {
     position: absolute;
@@ -26,6 +27,7 @@ body:not(body.triple) .menu-container.visible {
     gap: 1rem;
 
     position: relative;
+    min-width: initial;
 }
 
 .menu:not(.menu.triple) {

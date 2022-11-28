@@ -17,7 +17,6 @@ body {
     --firstCol: 1;
     display: grid;
     grid-template-columns: auto 1fr 1fr;
-    overflow: hidden;
 }
 
 body.double {
@@ -34,6 +33,12 @@ body * {
 
 body > * {
     overflow: auto;
+    display: grid;
+    height: 100%;
+}
+body > * > * {
+    min-width: min(44ch, 100vw);
+    height: 100%;
 }
 
 span.seperator {

@@ -1,3 +1,7 @@
+.listView-container.hide {
+    display: none;
+}
+
 .listView {
     --bgCol: rgb(39, 55, 70);
     background-color: var(--bgCol);
