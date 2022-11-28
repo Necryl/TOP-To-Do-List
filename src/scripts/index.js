@@ -573,7 +573,13 @@ const UI = (() => {
             loadItem(type, index);
             switchToContentView();
         })
-        element.appendChild(textElem);
+        let textElemContainer = document.createElement('div');
+        textElemContainer.classList.add('textContainer');
+        textElemContainer.addEventListener('click', event => {
+            textElem.click();
+        });
+        textElemContainer.appendChild(textElem);
+        element.appendChild(textElemContainer);
         Data.updateItemElem(type, index, {titleElem: textElem});
         if (type === 'task') {
             let priorityElem = document.createElement('select');
@@ -615,12 +621,6 @@ const UI = (() => {
         element.addEventListener('animationend', event => {
             if (element.classList.contains('removing')) {
                 element.remove();
-            }
-        });
-        element.addEventListener('click', event => {
-            if (displayState === 'single') {
-                loadItem(type, index);
-                switchToContentView();
             }
         });
 

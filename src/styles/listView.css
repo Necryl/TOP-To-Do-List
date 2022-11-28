@@ -154,8 +154,15 @@
     border-color: rgba(255, 255, 255, 0.623);
 }
 
-.listView.single ul li *:not(input[type='checkbox']) {
-    pointer-events: none;
+.listView.single ul li .textContainer {
+    position: relative;
+}
+
+.listView.single ul li .textContainer::before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: 100%;
 }
 
 .listView ul li:hover {
