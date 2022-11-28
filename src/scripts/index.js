@@ -1514,7 +1514,7 @@ const Engine =(()=>{
         Data.updateListName(type, index, name);
     }
 
-    function deleteItem (type, index) {
+    async function deleteItem (type, index) {
         let inPresentList = false;
         let presentList = Data.getList(...currentList);
         if (_.isEqual(currentItem, [type, index])) {
@@ -1523,7 +1523,7 @@ const Engine =(()=>{
             inPresentList = true;
         }
         if (inPresentList) {
-            UI.removeItem(type, index);
+            await UI.removeItem(type, index);
         }
         Data.removeItem(type, index);
     }
