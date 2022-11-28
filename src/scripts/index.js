@@ -96,8 +96,6 @@ const UI = (() => {
 
     let loadingScreenVisible = false;
 
-    let currentListItems = [];
-
     function updateDisplayState () {
 
         Engine.setLoadingStatus(UI, 'updatingDisplay', true);
@@ -676,7 +674,6 @@ const UI = (() => {
         });
         
         let list = getListSorted(type, Data.getList(type, index));
-        currentListItems = list;
         
         [listItemsULElement, completedItemsULElement].forEach(element => {
             while (element.firstChild) {
