@@ -1659,6 +1659,10 @@ contentViewDateElement.addEventListener('input', event => {
 });
 contentViewDeleteBtnElement.addEventListener('click', event => {
     Engine.deleteItem(...currentItem);
+    if (displayState === 'single' && currentView === contentViewContainerElement) {
+        currentView = listViewContainerElement;
+        UI.updateSingleView();
+    }
 });
 removeCompletedBtnElement.addEventListener('click', event => {
     [...completedItemsULElement.children].forEach(itemElem => {
