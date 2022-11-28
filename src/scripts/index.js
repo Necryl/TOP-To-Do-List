@@ -638,16 +638,41 @@ const UI = (() => {
             completedItemsULElement.style.display = 'grid';
         }
         let list = Data.getList(type, index);
+
         listNameInListViewElement.value = Data.getListName(type, index);
+
+        Data.getListOptions(type, index).forEach((value, index) => {
+            listViewOptionElements[index].checked = value;
+            if (index > 1) {
+                let evt = new Event('input');
+                listViewOptionElements[index].dispatchEvent(evt);
+            }
+        });
+        let sortType = null;
+        if (listViewOptionElements[0].checked) {
+            sortType = 'priority';
+        }
+        if (listViewOptionElements[1].checked) {
+            if (sortType !== null) {
+                sortType = 'both';
+            } else {
+                sortType = 'date';
+            }
+        }
+        if (sortType !== null) {
+            if (sortType === 'priority') {
+                list = Data.sortByPriority(type, list);
+            } else if (sortType === 'date') {
+                list = Data.sortByDate(type, list);
+            } else if (sortType === 'both') {
+                list = Data.mixSorted(Data.sortByPriority(type, list), Data.sortByDate(type, list));
+            }
+        }
+        
         [listItemsULElement, completedItemsULElement].forEach(element => {
             while (element.firstChild) {
                 element.removeChild(element.firstChild);
             }
-        });
-        Data.getListOptions(type, index).forEach((value, index) => {
-            listViewOptionElements[index].checked = value;
-            let evt = new Event('input');
-            listViewOptionElements[index].dispatchEvent(evt);
         });
         
         Data.clearItemElems();
@@ -1287,6 +1312,62 @@ const Data = (()=>{
         data.set(id+'_name', name);
     }
 
+    function sortByPriority (type, itemList=getList(...currentList)) {
+        let options = ['urgent', 'high', 'normal', 'low'];
+        return itemList.sort((a, b) => {
+            a = options.indexOf(getItem(type, a).priority);
+            b = options.indexOf(getItem(type, b).priority);
+            return a - b;
+        });
+    }
+
+    function sortByDate (type, itemList=getList(...currentList)) {
+        let result = itemList.slice(0).sort((a, b) => {
+            a = getItem(type, a).date;
+            b = getItem(type, b).date;
+            a = a === 'No due date' ? null : new Date(a);
+            b = b === 'No due date' ? null : new Date(b);
+            if ([a, b].includes(null)) {
+                if (a !== null) {
+                    return -1;
+                } else if (b !== null) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else if (a.getTime() === b.getTime()) {
+                return 0;
+            } else {
+                return a.getTime() - b.getTime();
+            }
+        });
+        return result;
+    }
+
+    function mixSorted () { // params = list1, list2... with all lists basically containing the same items, just ordered different (sometimes ordered the same)
+        let processed = arguments[0].reduce((final, current, index) => {
+            final.push([current, index]);
+            return final;
+        }, []);
+        for (let i = 1; i < arguments.length; i++) {
+            arguments[i].forEach((item, index) => {
+                let processedIndex = arguments[0].indexOf(item);
+                processed[processedIndex][1] += index;
+            });
+        }
+        processed.forEach((item, index) => {
+            processed[index][1] = item[1]/arguments.length;
+        });
+        processed = processed.sort((a, b) => {
+            return a[1] - b[1];
+        });
+        
+        return processed.reduce((final, current) => {
+            final.push(current[0]);
+            return final;
+        }, []);
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -1312,6 +1393,9 @@ const Data = (()=>{
             spawnNewItemElem,
             getItemElem,
             updateListName,
+            sortByDate,
+            sortByPriority,
+            mixSorted,
         }
     });
 })();
@@ -1510,6 +1594,14 @@ showDateElement.addEventListener('input', event => {
         listViewElement.classList.remove('hideDate');
     }
 })
+sortPriorityElement.addEventListener('input', event => {
+    Data.updateListViewOptions();
+    UI.loadList(...currentList);
+});
+sortDateElement.addEventListener('input', event => {
+    Data.updateListViewOptions();
+    UI.loadList(...currentList);
+});
 listViewOptionElements.forEach(element => {
     element.addEventListener('input', event => {
         Data.updateListViewOptions();
@@ -1549,6 +1641,11 @@ removeCompletedBtnElement.addEventListener('click', event => {
 });
 listNameInListViewElement.addEventListener('input', event => {
     Engine.updateListName(...currentList, event.target.value);
+});
+listNameInListViewElement.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.keyCode === 13) {
+        listNameInListViewElement.blur();
+    }
 });
 
 
