@@ -1595,6 +1595,7 @@ newBtnMenuInputElements.forEach((element, index) => {
         if (event.target.value.trim() !== '') {
             let type = index === 0 ? 'task':'note';
             Engine.newList(type, event.target.value.trim());
+            closeMenuBtnElement.click();
         }
         event.target.value = '';
     })
