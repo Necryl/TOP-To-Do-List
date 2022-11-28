@@ -31,12 +31,12 @@ body * {
     color: white;
 }
 
-body > * {
+body > :is(.menu-container, .listView-container, .contentView-container) {
     overflow: auto;
     display: grid;
     height: 100%;
 }
-body > * > * {
+body > :is(.menu-container, .listView-container, .contentView-container) > * {
     min-width: min(44ch, 100vw);
     height: 100%;
 }

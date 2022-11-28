@@ -550,7 +550,6 @@ const UI = (() => {
                             }
                         }
                     } else {
-                        console.log("list is empty");
                         listItemsULElement.appendChild(element);
                     }
                 }

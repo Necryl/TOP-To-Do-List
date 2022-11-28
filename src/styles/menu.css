@@ -1,7 +1,6 @@
 .menu-container {
     position: relative;
     z-index: 2;
-    min-width: initial;
 }
 body:not(body.triple) .menu-container {
     position: absolute;
@@ -15,6 +14,7 @@ body:not(body.triple) .menu-container.visible {
 }
 .menu {
     overflow: auto;
+    min-width: initial !important;
     background-color: rgb(33, 33, 43);
 
     height: 100%;
