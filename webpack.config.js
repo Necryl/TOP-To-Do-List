@@ -28,7 +28,11 @@ module.exports = {
             {
                 test: /\.(svg|ico|png|gif|jpg|jpeg|webp)$/,
                 type: "asset/resource"
-            }
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+            },
         ]
     },
     plugins: [
