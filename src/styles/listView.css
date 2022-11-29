@@ -31,6 +31,19 @@
 
 .listView #open-menu {
     max-height: 2.5rem;
+    background-color: transparent;
+    border: 2px solid white;
+    border-radius: 5px;
+    opacity: 75%;
+}
+
+.listView #open-menu:hover {
+    opacity: 100%;
+}
+
+.listView #open-menu>img {
+    height: 100%;
+    width: 100%;
 }
 
 .listView .title {
@@ -313,14 +326,36 @@
     --col: white;
     color: var(--col);
     border: none;
-    transition: 300ms;
     display: grid;
     grid-template-columns: auto 1fr;
-    grid-template-areas: "TITLE SYMBOL"
-                         "BAR BAR";
-    gap: 0ch 1ch;
+    grid-template-areas: "SYMBOL TITLE"
+    "BAR BAR";
+    gap: 0ch 0.5ch;
+    
+    --transitionMS: 300ms;
+    transition: var(--transitionMS);
 }
-#completedTitle::before {
+
+#completedTitle>svg {
+    grid-area: SYMBOL;
+    height: 0.65em;
+    margin-left: 0.1em;
+    align-self: center;
+    rotate: 90deg;
+    transition: 100ms;
+    aspect-ratio: 1/1;
+}
+
+#completedTitle>svg * {
+    fill: var(--col) !important;
+}
+
+
+#completedTitle.collapse>svg {
+    rotate: 0deg;
+}
+
+#completedTitle::after {
     grid-area: BAR;
     display: block;
     margin-top: 3px;
@@ -331,22 +366,15 @@
     transition: 500ms;
     width: 0%;
 }
-#completedTitle::after {
-    grid-area: SYMBOL;
-    content: 'v';
-}
 #completedTitle:hover {
     --col: rgb(118, 179, 248);
 }
 #completedTitle:active {
     --col: rgb(153, 226, 226);
 }
-#completedTitle:hover::before {
+#completedTitle:hover::after {
     width: 100%;
     background-color: var(--col);
-}
-#completedTitle.collapse::after {
-    content: '>';
 }
 
 .listView .completedTitle-wrapper #removeCompleted {
@@ -449,6 +477,7 @@
 
 .listView .completedItems.collapse {
     animation: completed-collapse 300ms ease-out forwards;
+    pointer-events: none;
 }
 @keyframes completed-collapse {
     100% {
@@ -465,10 +494,15 @@
         transform: translateY(-3rem);
         visibility: hidden;
         opacity: 0%;
+        pointer-events: none;
+    }
+    99% {
+        pointer-events: none;
     }
     100% {
         transform: translateY(0rem);
         opacity: 100%;
+        pointer-events: initial;
     }
 }
 

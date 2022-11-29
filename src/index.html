@@ -37,7 +37,9 @@
     <div class="listView-container">
         <div class="listView">
             <div class="title-wrapper">
-                <button id="open-menu">|||</button>
+                <button id="open-menu">
+                    <img src="<%=require('./assets/images/menu.svg')%>" alt="menu-icon">
+                </button>
                 <h1 class="title">To-Do List</h1>
             </div>
             <div class="listNameWrapper">
@@ -84,7 +86,17 @@
                 </li>
             </ul>
             <div class="completedTitle-wrapper">
-                <button id="completedTitle">Completed</button>
+                <button id="completedTitle">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="14" height="24" viewBox="0 0 14 24" xml:space="preserve">
+                        <desc>Created with Fabric.js 3.6.6</desc>
+                        <defs>
+                        </defs>
+                        <g transform="matrix(1 0 0 1 7.1 12.05)"  >
+                        <path style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  transform=" translate(-23.7, -23.95)" d="m 18.75 36 l -2.15 -2.15 l 9.9 -9.9 l -9.9 -9.9 l 2.15 -2.15 L 30.8 23.95 Z" stroke-linecap="round" />
+                        </g>
+                    </svg>
+                    Completed
+                </button>
                 <button id="removeCompleted">remove</button>
             </div>
             <ul class="completedItems">
@@ -101,10 +113,11 @@
                 <p>When you click on a list item, its content will be shown here</p>
             </div>
             <div class="title-wrapper">
-                <button id="return">|||</button>
+                <button id="return">
+                    <img src="<%=require('./assets/images/return.svg')%>" alt="menu-icon">
+                </button>
                 <input type="text" class="itemTitle" placeholder="Title">
             </div>
-            <span class="seperator"></span>
             <textarea class="description" style="resize: none;" placeholder="Description"></textarea>
             <div class="options">
                 <select>

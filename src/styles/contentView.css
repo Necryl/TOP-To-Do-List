@@ -10,7 +10,7 @@
     padding: 4px 10px;
 
     display: grid;
-    grid-template-rows: auto auto 1fr auto;
+    grid-template-rows: auto 1fr auto;
     gap: 10px;
 
     position: relative;
@@ -29,6 +29,28 @@
 
 .contentView.single .title-wrapper {
     grid-template-columns: auto 1fr;
+}
+
+.contentView #return {
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: 5px;
+    opacity: 75%;
+    display: grid;
+    place-content: center;
+    position: relative;
+}
+
+.contentView #return:hover {
+    opacity: 100%;
+}
+
+.contentView #return img {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0%;
+    right: 0%;
 }
 
 .contentView .itemTitle, .contentView textarea {
