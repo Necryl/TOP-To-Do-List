@@ -107,7 +107,7 @@ body:not(body.triple) .menu-container.visible {
     padding: 7px;
     text-align: start;
     transition: 300ms;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
 }
 
 :is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)):hover {
