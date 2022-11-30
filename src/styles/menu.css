@@ -94,7 +94,6 @@ body:not(body.triple) .menu-container.visible {
 }
 
 .menu .tasks-wrapper, .menu .notes-wrapper, .menu #tasks, .menu #notes {
-    
     display: grid;
     overflow: visible;
 }
@@ -108,14 +107,14 @@ body:not(body.triple) .menu-container.visible {
     padding: 7px;
     text-align: start;
     transition: 300ms;
-    outline: 1px solid transparent;
+    border: 1px solid transparent;
 }
 
 :is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)):hover {
-    outline-color: white;
+    border-color: white;
 }
 :is(.menu .tasks-wrapper *:not(ul, div), .menu .notes-wrapper *:not(ul, div)).selected {
-    outline: 2px solid rgba(0, 255, 255, 0.438);
+    border: 2px solid rgba(0, 255, 255, 0.438);
 }
 
 :is(.menu .tasks-wrapper, .menu .notes-wrapper) .newBtn {
