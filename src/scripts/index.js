@@ -1401,7 +1401,7 @@ const Data = (()=>{
     function loadSampleData () {
         let taskListIndex = spawnNewList('task', 'Sample Task List');
         let noteListIndex = spawnNewList('note', 'Sample Note List');
-        updateListOptions('task', taskListIndex, [false, false, true, false]);
+        updateListOptions('task', 0, [false, false, true, false]);
         let itemIndex = spawnNewItem('task', taskListIndex);
         updateItem('task', itemIndex, {title: 'Feed the dog'});
         itemIndex = spawnNewItem('task', taskListIndex);
