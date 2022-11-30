@@ -18,6 +18,14 @@ html, body {
 
     --fontTitle: 'Mukta', sans-serif;
     --fontMain: 'Roboto', sans-serif;
+
+    --menuCol: rgb(27, 31, 51);
+    --listViewCol: rgb(6, 48, 83);
+    --contentViewCol: rgb(29, 68, 105);
+    --insideCol: rgb(67, 108, 128);
+
+    --mainContentCol: white;
+    --fontCol: var(--mainContentCol);
 }
 
 body {
@@ -36,7 +44,7 @@ body.single {
 }
 
 body * {
-    color: white;
+    color: var(--fontCol);
     font-family: var(--fontMain);
 }
 

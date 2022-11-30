@@ -3,9 +3,7 @@
 }
 
 .contentView {
-    background-color: rgb(24, 85, 136);
-    
-    --insideCol: rgb(50, 66, 80);
+    background-color: var(--contentViewCol);
     
     padding: 4px 10px;
 
@@ -52,6 +50,11 @@
     top: 0%;
     right: 0%;
 }
+
+.contentView textarea::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: var(--fontCol);
+    opacity: 0.5; /* Firefox */
+  }
 
 .contentView .itemTitle, .contentView textarea {
     border-radius: 5px;

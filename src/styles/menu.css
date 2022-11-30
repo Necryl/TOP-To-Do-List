@@ -15,7 +15,7 @@ body:not(body.triple) .menu-container.visible {
 .menu {
     overflow: auto;
     min-width: initial !important;
-    background-color: rgb(33, 33, 43);
+    background-color: var(--menuCol);
 
     height: 100%;
     width: min(250px, 100vw);

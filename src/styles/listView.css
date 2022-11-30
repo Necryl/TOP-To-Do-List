@@ -3,8 +3,7 @@
 }
 
 .listView {
-    --bgCol: rgb(39, 55, 70);
-    background-color: var(--bgCol);
+    background-color: var(--listViewCol);
     display: grid;
     align-content: start;
     gap: 15px;
@@ -243,7 +242,7 @@
 }
 
 .listView ul li select:focus {
-    background-color: var(--bgCol);
+    background-color: var(--listViewCol);
 }
 
 .listView ul li input[type='date'] {
