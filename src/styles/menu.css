@@ -23,7 +23,7 @@ body:not(body.triple) .menu-container.visible {
     padding: 10px;
 
     display: grid;
-    align-content: start;
+    grid-template-rows: repeat(4, auto) 1fr;
     gap: 1rem;
 
     position: relative;
@@ -175,4 +175,31 @@ body:not(body.triple) .menu-container.visible {
         opacity: 0%;
         max-height: 0em;
     }
+}
+
+.attribution {
+    display: grid;
+    align-content: end;
+    gap: 0.5em;
+    font-size: 1rem;
+}
+
+.attribution a {
+    text-decoration: none;
+}
+
+.attribution a:hover {
+    text-decoration: underline;
+}
+
+.attribution .created-by a {
+    color: aqua;
+}
+
+.attribution .source {
+    color: rgb(198, 126, 226);
+}
+
+.attribution .warning {
+    color: rgb(233, 196, 116);
 }
