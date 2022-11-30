@@ -201,7 +201,8 @@
     height: var(--size);
     align-self: center;
 
-    --col: rgba(255, 255, 255, 0.233);
+    --col: rgb(255, 255, 255);
+    opacity: 40%;
     border: 2px solid var(--col);
     border-radius: 5px;
 
@@ -211,23 +212,35 @@
     transition: 200ms;
 }
 .listView ul li input[type='checkbox']:hover {
-    --col: rgba(255, 255, 255, 0.479);
+    opacity: 60%;
 }
 
 .listView ul li input[type='checkbox']::before {
     position: absolute;
     content: '';
-    color: rgb(143, 168, 192);
-    translate: -3px -12px;
+    background-color: rgb(145, 178, 209);
+    translate: -1px -4px;
 }
 
 .listView .completedItems li input[type='checkbox']::before {
-    color: rgb(134, 139, 141);
+    color: rgb(134, 139, 255);
 }
 
 .listView ul li input[type='checkbox']:checked::before {
-    content: '\2713';
-    font-size: 30px;
+    content: '';
+
+    --image: url('../assets/images/check.svg');
+    --size: 20px;
+    mask-image: var(--image);
+    mask-repeat: no-repeat;
+    mask-size: var(--size);
+    -webkit-mask-image: var(--image);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: var(--size);
+
+    background-color: var(--col);
+    width: var(--size);
+    height: var(--size);
 }
 
 .listView ul li input[type='text'] {
