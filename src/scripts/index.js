@@ -1132,9 +1132,8 @@ const Data = (()=>{
         spawnNewList('note', 'All Notes');
     }
 
-    function updateListViewOptions () {
-        let optionsArray = UI.getListViewOptionsData();
-        let id = currentList[0]+'List_'+currentList[1]+'_options';
+    function updateListOptions (type=currentList[0], index=currentList[1], optionsArray=UI.getListViewOptionsData()) {
+        let id = type+'List_'+index+'_options';
         data.set(id, optionsArray);
     }
 
@@ -1399,6 +1398,27 @@ const Data = (()=>{
         }, []);
     }
 
+    function loadSampleData () {
+        let taskListIndex = spawnNewList('task', 'Sample Task List');
+        let noteListIndex = spawnNewList('note', 'Sample Note List');
+        updateListOptions('task', taskListIndex, [false, false, true, false]);
+        let itemIndex = spawnNewItem('task', taskListIndex);
+        updateItem('task', itemIndex, {title: 'Feed the dog'});
+        itemIndex = spawnNewItem('task', taskListIndex);
+        updateItem('task', itemIndex, {title: 'Feed the cat'});
+        itemIndex = spawnNewItem('task', taskListIndex);
+        updateItem('task', itemIndex, {title: "Feed the neighbour's kid"});
+        itemIndex = spawnNewItem('task', taskListIndex);
+        updateItem('task', itemIndex, {title: 'Feed the monster in the closet', checked:true});
+
+        itemIndex = spawnNewItem('note', noteListIndex);
+        updateItem('note', itemIndex, {title: 'Note to self', textBody: 'Death is everything for the living and nothing for the dead.'});
+        itemIndex = spawnNewItem('note', noteListIndex);
+        updateItem('note', itemIndex, {title: 'Another note', textBody: "just some description, don't mind me..."});
+        itemIndex = spawnNewItem('note', noteListIndex);
+        updateItem('note', itemIndex, {title: 'yet another note'});
+    }
+
     return createModule({
         name: 'Data',
         processes: ['verifyingData', 'loadingData'],
@@ -1415,7 +1435,7 @@ const Data = (()=>{
             removeItem,
             removeList,
             logLocalStorage,
-            updateListViewOptions,
+            updateListOptions,
             getListOptions,
             updateItem,
             getItemPosition,
@@ -1427,6 +1447,7 @@ const Data = (()=>{
             sortByDate,
             sortByPriority,
             mixSorted,
+            loadSampleData,
         }
     });
 })();
@@ -1439,7 +1460,11 @@ const Engine =(()=>{
         if (dataResult === false) {
             UI.alert("Alert", "Found old data, but it seems corrupted. Your data is going to be reset.", ["Ok", ()=>{Engine.resetData()}]);
         } else {
-            UI.loadData();
+            if (dataResult === 'new') {
+                UI.alert("Hello", "This is a fresh start. Would you like to load sample lists?", ['Sure', () => {Data.loadSampleData();UI.loadData()}], ['No thanks', () => {UI.loadData()}])
+            } else {
+                UI.loadData();
+            }
         }
 
     }
@@ -1630,16 +1655,16 @@ showDateElement.addEventListener('input', event => {
     }
 })
 sortPriorityElement.addEventListener('input', event => {
-    Data.updateListViewOptions();
+    Data.updateListOptions();
     UI.loadList(...currentList);
 });
 sortDateElement.addEventListener('input', event => {
-    Data.updateListViewOptions();
+    Data.updateListOptions();
     UI.loadList(...currentList);
 });
 listViewOptionElements.forEach(element => {
     element.addEventListener('input', event => {
-        Data.updateListViewOptions();
+        Data.updateListOptions();
     });
 })
 newBtnListViewElement.addEventListener('click', event => {
