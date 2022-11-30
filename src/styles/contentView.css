@@ -51,7 +51,7 @@
     right: 0%;
 }
 
-.contentView textarea::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+.contentView ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: var(--fontCol);
     opacity: 0.5; /* Firefox */
   }
