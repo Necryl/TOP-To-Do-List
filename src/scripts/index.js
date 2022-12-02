@@ -1704,6 +1704,17 @@ contentViewTitleElement.addEventListener('input', event => {
 });
 contentViewDescElement.addEventListener('input', event => {
     Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {textBody: contentViewDescElement.value});
+    let elem = contentViewDescElement;
+    if (elem.scrollHeight > elem.clientHeight) {
+        elem.style.height = elem.scrollHeight+4+'px';
+    } else {
+        let prev_height = elem.clientHeight-1;
+        while (prev_height !== elem.clientHeight) {
+            prev_height = elem.clientHeight;
+            elem.style.height = elem.scrollHeight+3+'px';
+        }
+        elem.style.height = elem.scrollHeight+4+'px';
+    }
 });
 contentViewPriorityElement.addEventListener('input', event => {
     Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {priority: contentViewPriorityElement.value});
