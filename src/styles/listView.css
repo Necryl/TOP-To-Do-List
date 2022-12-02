@@ -459,7 +459,7 @@
 .listView.hidePriority select {
     display: none;
 }
-.listView.hideDate input[type='date'] {
+.listView.hideDate .date-container {
     display: none;
 }
 
