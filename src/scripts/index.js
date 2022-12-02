@@ -442,6 +442,7 @@ const UI = (() => {
         if (displayState === 'single') {
             currentView = contentViewContainerElement;
             updateSingleView();
+            contentViewTitleElement.focus();
         }
     }
 
