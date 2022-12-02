@@ -1577,12 +1577,31 @@ const Engine =(()=>{
             updateListName,
         }
     });
-})()
+})();
 
 // events
-window.onresize = () => {
-    UI.updateDisplay();
-};
+(() => {
+    let trackWindowResizeEvents = [];
+    let prev_width = window.innerWidth;
+    window.onresize = (event) => {
+        trackWindowResizeEvents.push(0);
+        setTimeout(() => {
+            trackWindowResizeEvents.pop();
+            if (trackWindowResizeEvents.length === 0) {
+                let widthVerdict = false;
+                if (displayState !== 'triple' && window.innerWidth-prev_width > 0) {
+                    widthVerdict = true;
+                } else if (displayState !== 'single' && prev_width-window.innerWidth > 0 && UI.viewOverflow()) {
+                    widthVerdict = true;
+                }
+                if (widthVerdict) {
+                    UI.updateDisplay();
+                }
+                prev_width = window.innerWidth;
+            }
+        }, 200);
+    };
+})(); // window.onresize
 openMenuBtnElement.addEventListener('click', (event) => {
     if (displayState != 'triple') {
         [menuContainerElement, menuElement].forEach(element => {
