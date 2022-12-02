@@ -263,19 +263,54 @@
     text-align: end;
     width: 14ch;
     position: relative;
+    z-index: 2;
 }
-.listView ul li input[type='date'].noDate:not(:hover) {
+
+.listView ul li .date-container {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: end;
+    height: 100%;
+    align-items: center;
+    position: relative;
+}
+
+.listView ul li .date-container input~span {
+    display: none;
+}
+.listView ul li .date-container:hover input~span {
+    display: initial;
+    --size: 18px;
+    height: var(--size);
+    width: var(--size);
+    border-radius: 3px;
+    background-color: rgba(234, 241, 241, 0.74);
+
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    translate: -1px 0px;
+}
+
+.listView ul li .date-container p {
+    position: absolute;
+}
+
+.listView ul li .date-container input[type='date']~p {
+    visibility: hidden;
+}
+
+.listView ul li .date-container:not(:hover) input[type='date'].noDate {
     animation: fadeOut 100ms ease-out forwards;
     visibility: hidden;
 }
 
-.listView ul li input[type='date'].noDate:hover {
+.listView ul li .date-container:hover input[type='date'].noDate {
     visibility: visible;
     animation: fadeIn 100ms ease-out forwards;
 }
 
-.listView ul li input[type='date'].noDate:not(:hover)::before {
-    content: 'No due date';
+.listView ul li .date-container:not(:hover) input[type='date'].noDate+p {
     position: absolute;
     right: 0%;
     animation: fadeIn 100ms ease-out forwards;
@@ -283,7 +318,7 @@
     color: white;
 }
 
-.listView ul li input[type='date'].noDate:hover::before {
+.listView ul li .date-container:hover input[type='date'].noDate+p {
     animation: fadeOut 100ms ease-out forwards;
     visibility: hidden;
     color: transparent;

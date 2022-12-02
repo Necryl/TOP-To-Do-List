@@ -615,7 +615,17 @@ const UI = (() => {
             dateElem.addEventListener('input', event => {
                 Engine.updateItemProperty(type, index, 'listView', {date: dateElem.value});
             });
-            element.appendChild(dateElem);
+            let dateContainerElem = document.createElement('div');
+            dateContainerElem.classList.add('date-container');
+            dateContainerElem.appendChild(dateElem);
+            let noDateSpanElement = document.createElement('p');
+            noDateSpanElement.textContent = 'No due date';
+            dateContainerElem.appendChild(noDateSpanElement);
+            if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 === false) {                
+                let dateHighlighterElem = document.createElement('span');
+                dateContainerElem.appendChild(dateHighlighterElem);
+            }
+            element.appendChild(dateContainerElem);
             Data.updateItemElem(type, index, {dateElem: dateElem});
         }
 
