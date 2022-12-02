@@ -761,10 +761,21 @@ const UI = (() => {
         rightClickDropdownElement.style.left = event.clientX+'px';
         rightClickDropdownElement.style.top = event.clientY+'px';
         rightClickDropdownElement.classList.remove('collapse');
+
+        let clickCatcherElement = document.querySelector('body');
+        
+        let outsideCLickEvent = (event) => {
+            console.log('outside click event triggered');
+            if (!rightClickDropdownElement.contains(event.target)) {
+                rightClickDropdownElement.dispatchEvent(new Event('mouseleave'));
+            }
+        };
         let collapseEvent = event => {
             rightClickDropdownElement.classList.add('collapse');
             rightClickDropdownElement.removeEventListener('mouseleave', collapseEvent);
+            clickCatcherElement.removeEventListener('click', outsideCLickEvent);
         }
+        clickCatcherElement.addEventListener('click', outsideCLickEvent, true);
         setTimeout(() => {
             rightClickDropdownElement.addEventListener('mouseleave', collapseEvent)
         }, 50);
@@ -1723,16 +1734,20 @@ contentViewDateElement.addEventListener('input', event => {
     Engine.updateItemProperty(currentItem[0], currentItem[1], 'contentView', {date: contentViewDateElement.value});
 });
 contentViewDeleteBtnElement.addEventListener('click', event => {
-    Engine.deleteItem(...currentItem);
-    if (displayState === 'single' && currentView === contentViewContainerElement) {
-        currentView = listViewContainerElement;
-        UI.updateSingleView();
-    }
+    UI.alert("", "Are you sure you want to delete this?", ["Yes", () => {
+        Engine.deleteItem(...currentItem);
+        if (displayState === 'single' && currentView === contentViewContainerElement) {
+            currentView = listViewContainerElement;
+            UI.updateSingleView();
+        }
+    }], ['No', ()=>{}]);
 });
 removeCompletedBtnElement.addEventListener('click', event => {
-    [...completedItemsULElement.children].forEach(itemElem => {
-        Engine.deleteItem(currentList[0], UI.getDataAttribute(itemElem, 'index'));
-    });
+    UI.alert("", "All completed tasks in this list will be deleted. Are you sure?", ["Yes", () => {
+        [...completedItemsULElement.children].forEach(itemElem => {
+            Engine.deleteItem(currentList[0], UI.getDataAttribute(itemElem, 'index'));
+        });
+    }], ["No", () => {}])
 });
 listNameInListViewElement.addEventListener('input', event => {
     Engine.updateListName(...currentList, event.target.value);
