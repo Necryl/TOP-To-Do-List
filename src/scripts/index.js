@@ -775,7 +775,6 @@ const UI = (() => {
         let clickCatcherElement = document.querySelector('body');
         
         let outsideCLickEvent = (event) => {
-            console.log('outside click event triggered');
             if (!rightClickDropdownElement.contains(event.target)) {
                 rightClickDropdownElement.dispatchEvent(new Event('mouseleave'));
             }

@@ -84,3 +84,7 @@ span.seperator {
 .title {
     font-family: var(--fontTitle);
 }
+
+button, input {
+    user-select: none;
+}
