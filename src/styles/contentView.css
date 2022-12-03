@@ -5,7 +5,7 @@
 .contentView {
     background-color: var(--contentViewCol);
     
-    padding: 4px 10px;
+    padding: 10px;
 
     display: grid;
     grid-template-rows: auto auto 1fr;
@@ -34,9 +34,15 @@
     border: 2px solid transparent;
     border-radius: 5px;
     opacity: 75%;
-    display: grid;
+    display: none;
+    max-height: 2.5rem;
+    aspect-ratio: 1/1;
     place-content: center;
     position: relative;
+}
+
+.contentView.single #return {
+    display: grid;
 }
 
 .contentView #return:hover {
@@ -46,9 +52,6 @@
 .contentView #return img {
     height: 100%;
     width: 100%;
-    position: absolute;
-    top: 0%;
-    right: 0%;
 }
 
 .contentView ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -124,15 +127,6 @@
 .contentView #delete:active {
     background-color: black;
     border-color: white;
-}
-
-.contentView #return {
-    display: none;
-    max-height: 2.5rem;
-}
-
-.contentView.single #return {
-    display: initial;
 }
 
 .contentView .clear {
