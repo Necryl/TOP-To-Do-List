@@ -701,6 +701,7 @@ const UI = (() => {
         } else {
             clearContentView();
         }
+        loadToolTips();
     }
 
     function getListSorted (type, list=Data.getList(...currentList)) {
