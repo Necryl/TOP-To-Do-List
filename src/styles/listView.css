@@ -258,7 +258,7 @@
     background-color: var(--listViewCol);
 }
 
-.listView ul li input[type='date'] {
+input[type='date'] {
     font-family: inherit;
     text-align: end;
     width: 14ch;
@@ -266,19 +266,19 @@
     z-index: 2;
 }
 
-.listView ul li .date-container {
+.date-container {
     display: grid;
     grid-auto-flow: column;
-    justify-content: end;
+    justify-content: center;
     height: 100%;
     align-items: center;
     position: relative;
 }
 
-.listView ul li .date-container input~span {
+.date-container input~span {
     display: none;
 }
-.listView ul li .date-container:hover input~span {
+.date-container:hover input~span {
     display: initial;
     --size: 18px;
     height: var(--size);
@@ -292,25 +292,30 @@
     translate: -1px 0px;
 }
 
-.listView ul li .date-container p {
+.date-container p {
     position: absolute;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    border-radius: inherit;
 }
 
-.listView ul li .date-container input[type='date']~p {
+.date-container input[type='date']~p {
     visibility: hidden;
 }
 
-.listView ul li .date-container:not(:hover) input[type='date'].noDate {
+.date-container:not(:hover) input[type='date'].noDate {
     animation: fadeOut 100ms ease-out forwards;
     visibility: hidden;
 }
 
-.listView ul li .date-container:hover input[type='date'].noDate {
+.date-container:hover input[type='date'].noDate {
     visibility: visible;
     animation: fadeIn 100ms ease-out forwards;
 }
 
-.listView ul li .date-container:not(:hover) input[type='date'].noDate+p {
+.date-container:not(:hover) input[type='date'].noDate+p {
     position: absolute;
     right: 0%;
     animation: fadeIn 100ms ease-out forwards;
@@ -318,7 +323,7 @@
     color: white;
 }
 
-.listView ul li .date-container:hover input[type='date'].noDate+p {
+.date-container:hover input[type='date'].noDate+p {
     animation: fadeOut 100ms ease-out forwards;
     visibility: hidden;
     color: transparent;

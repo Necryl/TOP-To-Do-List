@@ -98,7 +98,7 @@
     min-width: 13ch;
 }
 
-.contentView .options input, .contentView .options select {
+.contentView .options :is(.date-container, select, input) {
     background-color: var(--insideCol);
     border-radius: 3px;
     border: none;

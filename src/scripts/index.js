@@ -745,6 +745,11 @@ const UI = (() => {
         if (type === 'task') {
             contentViewPriorityElement.value = itemData.priority;
             contentViewDateElement.value = itemData.date === 'No due date'? '':itemData.date;
+            if (itemData.date === 'No due date' && contentViewDateElement.classList.contains('noDate') === false) {
+                contentViewDateElement.classList.add('noDate');
+            } else if (itemData.date !== 'No due date' && contentViewDateElement.classList.contains('noDate')) {
+                contentViewDateElement.classList.remove('noDate');
+            }
         }
         contentViewClearElement.style.display = 'none';
 
@@ -837,6 +842,7 @@ const UI = (() => {
         }
         Object.entries(entries).forEach(entry => {
             let element = getElement(target, entry[0]);
+            console.log(element);
             if (['title', 'priority', 'date'].includes(entry[0])) {
                 if (target !== 'contentView' || presentItem === true) {
                     element.value = entry[1];
