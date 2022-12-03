@@ -158,6 +158,6 @@
     border-radius: 0.35em;
 }
 
-.contentView.note .options :is(select, input) {
+.contentView.note .options :is(select, .date-container) {
     display: none;
 }
