@@ -275,11 +275,7 @@ input[type='date'] {
     position: relative;
 }
 
-.date-container input~span {
-    display: none;
-}
 .date-container:hover input~span {
-    display: initial;
     --size: 18px;
     height: var(--size);
     width: var(--size);
@@ -305,12 +301,12 @@ input[type='date'] {
     visibility: hidden;
 }
 
-.date-container:not(:hover) input[type='date'].noDate {
+.date-container:not(:hover) :is(input[type='date'].noDate, input[type='date'].noDate~span) {
     animation: fadeOut 100ms ease-out forwards;
     visibility: hidden;
 }
 
-.date-container:hover input[type='date'].noDate {
+.date-container:hover :is(input[type='date'].noDate, input[type='date'].noDate~span) {
     visibility: visible;
     animation: fadeIn 100ms ease-out forwards;
 }
