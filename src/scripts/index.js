@@ -842,7 +842,6 @@ const UI = (() => {
         }
         Object.entries(entries).forEach(entry => {
             let element = getElement(target, entry[0]);
-            console.log(element);
             if (['title', 'priority', 'date'].includes(entry[0])) {
                 if (target !== 'contentView' || presentItem === true) {
                     element.value = entry[1];
@@ -851,13 +850,23 @@ const UI = (() => {
                     if (entry[1] === '') {
                         if (target === 'contentView') {
                             getElement('listView', 'date').classList.add('noDate');
+                            if (presentItem) {
+                                element.classList.add('noDate');
+                            }
+                        } else {
+                            element.classList.add('noDate');
+                            getElement('contentView', 'date').classList.add('noDate');
                         }
-                        element.classList.add('noDate');
                     } else {
                         if (target === 'contentView') {
                             getElement('listView', 'date').classList.remove('noDate');
+                            if (presentItem) {
+                                element.classList.remove('noDate');
+                            }
+                        } else {
+                            element.classList.remove('noDate');
+                            getElement('contentView', 'date').classList.remove('noDate');
                         }
-                        element.classList.remove('noDate');
                     }
                 }
             }

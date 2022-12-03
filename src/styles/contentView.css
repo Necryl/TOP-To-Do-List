@@ -145,6 +145,7 @@
 
     display: grid;
     place-content: center;
+    z-index: 3;
 
 }
 
