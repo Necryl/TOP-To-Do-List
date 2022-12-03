@@ -621,7 +621,8 @@ const UI = (() => {
             let noDateSpanElement = document.createElement('p');
             noDateSpanElement.textContent = 'No due date';
             dateContainerElem.appendChild(noDateSpanElement);
-            if (navigator.userAgent.toLowerCase().indexOf('firefox') > -1 === false) {                
+            let clientIsNotFirefoxOrAndroid = navigator.userAgent.toLowerCase().indexOf('firefox') > -1 === false && navigator.userAgent.toLowerCase().indexOf('android') > -1 === false;
+            if (clientIsNotFirefoxOrAndroid) {
                 let dateHighlighterElem = document.createElement('span');
                 dateContainerElem.appendChild(dateHighlighterElem);
             }
