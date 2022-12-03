@@ -88,3 +88,7 @@ span.seperator {
 button, input {
     user-select: none;
 }
+
+ul {
+    list-style: none;
+}
